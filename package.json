@@ -1,0 +1,8 @@
+{
+  "name": "test-light-year-core",
+  "version": "1.0.0",
+  "main": "truffle-config.js",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.1.0"
+  }
+}

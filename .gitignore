@@ -1,0 +1,8 @@
+
+#Directories
+.idea
+node_modules
+build
+
+#Files
+package-lock.json
