@@ -5,12 +5,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import "./interface/IClaimConfig.sol";
 import "./interface/ICommodityERC20.sol";
 import "./interface/IMiningConfig.sol";
 import "./interface/IRegistry.sol";
-import "./uniswapv2/IUniswapV2Router02.sol";
 
 interface IFarm {
     function deposit(uint256 pid_, uint256 amount_) external;
