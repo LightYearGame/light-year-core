@@ -3,6 +3,7 @@
 .idea
 node_modules
 build
+contracts/artifacts
 
 #Files
 package-lock.json
