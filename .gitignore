@@ -8,3 +8,4 @@ temp
 
 #Files
 package-lock.json
+*.json
