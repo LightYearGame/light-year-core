@@ -4,6 +4,7 @@
 node_modules
 build
 contracts/artifacts
+temp
 
 #Files
 package-lock.json
