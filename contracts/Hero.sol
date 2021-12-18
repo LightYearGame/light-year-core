@@ -44,7 +44,7 @@ contract Hero is Nft, IHero {
         return IHeroConfig(registry().heroConfig());
     }
 
-    function lightYearCoin() private view returns (ICommodityERC20){
+    function tokenLightCoin() private view returns (ICommodityERC20){
         return ICommodityERC20(registry().tokenLightCoin());
     }
 
@@ -61,16 +61,13 @@ contract Hero is Nft, IHero {
     }
 
     function multipleDrawHero(uint256 amount_, bool advance_) public payable {
-        //uint256 price = heroConfig().getHeroPrice();
 
-        uint256 basePrice = 10;
-        if (advance_) {
-            basePrice = 20;
-        }
+        //base price
+        uint256 basePrice = heroConfig().getHeroPrice(advance_);
         uint256 totalPrice = amount_ * basePrice;
 
         //pay light year coin
-        lightYearCoin().burn(totalPrice);
+        tokenLightCoin().burn(totalPrice);
 
         //mint
         uint256[] memory heroIdArray = new uint256[](amount_);
@@ -102,32 +99,15 @@ contract Hero is Nft, IHero {
      *
      */
     function _createHero(bool advance_) private view returns (Info memory){
-        uint8 heroType = uint8(_randomRarity(advance_));
+        uint8 heroType = uint8(_randomHeroType(advance_));
         Info memory info = Info(1, heroType);
         return info;
     }
 
-    function _randomRarity(bool advance_) private view returns (uint256){
-        uint256 random = _random(1200);
-        uint256 r1 = random % 100;
-        uint256 r2 = random % 12;
-        if (!advance_) {
-            if (r1 < 90) {
-                return r2;
-            } else if (r1 < 98) {
-                return r2 + 12;
-            } else {
-                return r2 + 12 * 2;
-            }
-        } else {
-            if (r1 < 80) {
-                return r2 + 12;
-            } else if (r1 < 98) {
-                return r2 + 12 * 2;
-            } else {
-                return r2 + 12 * 3;
-            }
-        }
+    function _randomHeroType(bool advance_) private view returns (uint256){
+        uint256 random = _random(10 ** 18);
+        uint256 heroType = heroConfig().randomHeroType(advance_, random);
+        return heroType;
     }
 
     /**
