@@ -1,31 +1,29 @@
-/**
- * Use this file to configure your truffle project. It's seeded with some
- * common settings for different networks and features like migrations,
- * compilation and testing. Uncomment the ones you need or modify
- * them to suit your project as necessary.
- *
- * More information about configuration can be found at:
- *
- * trufflesuite.com/docs/advanced/configuration
- *
- * To deploy via Infura you'll need a wallet provider (like @truffle/hdwallet-provider)
- * to sign your transactions before they're sent to a remote public node. Infura accounts
- * are available for free at: infura.io/register.
- *
- * You'll also need a mnemonic - the twelve word phrase the wallet uses to generate
- * public/private key pairs. If you're publishing your code to GitHub make sure you load this
- * phrase from a file you've .gitignored so it doesn't accidentally become public.
- *
- */
-
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const HDWalletProvider = require("truffle-hdwallet-provider");
+const fs = require('fs');
+const MNEMONIC = fs.readFileSync("./temp/mnemonic.secret").toString().trim();
 
 module.exports = {
 
-    networks: {},
+    networks: {
+
+        //dev
+        dev: {
+            provider: function () {
+                return new HDWalletProvider(MNEMONIC, "http://127.0.0.1:7545")
+            },
+            network_id: 5777,
+            gas: 6660000
+        },
+
+        //bsc-test
+        bsc: {
+            provider: function () {
+                return new HDWalletProvider(MNEMONIC, "https://data-seed-prebsc-1-s1.binance.org:8545/")
+            },
+            network_id: 97,
+            gas: 9990000
+        },
+    },
 
     // Set default mocha options here, use special reporters etc.
     mocha: {
