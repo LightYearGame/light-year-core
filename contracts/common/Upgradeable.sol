@@ -9,14 +9,11 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../interface/IUpgradeable.sol";
 import "../interface/IUpgradeableConfig.sol";
 import "../interface/IRegistry.sol";
-
-interface IBurnableERC20 is IERC20 {
-    function burn(address who_, uint256 amount_) external;
-}
+import "../interface/ICommodityERC20.sol";
 
 abstract contract Upgradeable is IUpgradeable, Context {
 
-    using SafeERC20 for IBurnableERC20;
+    using SafeERC20 for ICommodityERC20;
 
     IRegistry public registry;
 
@@ -35,8 +32,7 @@ abstract contract Upgradeable is IUpgradeable, Context {
         address[] memory tokenArray = _config().getTokenArray(itemIndex_, level);
         uint256[] memory costArray = _config().getCostArray(itemIndex_, level);
         for (uint256 i = 0; i < tokenArray.length; ++i) {
-            //IBurnableERC20(tokenArray[i]).safeTransferFrom(_msgSender(), address(this), costArray[i]);
-            IBurnableERC20(tokenArray[i]).burn(_msgSender(), costArray[i]);
+            ICommodityERC20(tokenArray[i]).burn(costArray[i]);
         }
 
         levelMap[_msgSender()][itemIndex_] = level + 1;
