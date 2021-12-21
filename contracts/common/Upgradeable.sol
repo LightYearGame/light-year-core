@@ -32,6 +32,7 @@ abstract contract Upgradeable is IUpgradeable, Context {
         address[] memory tokenArray = _config().getTokenArray(itemIndex_, level);
         uint256[] memory costArray = _config().getCostArray(itemIndex_, level);
         for (uint256 i = 0; i < tokenArray.length; ++i) {
+            ICommodityERC20(tokenArray[i]).operatorTransfer(_msgSender(), address(this), costArray[i]);
             ICommodityERC20(tokenArray[i]).burn(costArray[i]);
         }
 
