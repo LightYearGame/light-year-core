@@ -6,9 +6,9 @@ import "./IShip.sol";
 
 interface IShipConfig {
 
+    function getBuildTokenArray(uint8 shipType_) external view returns (address[] memory);
+
     function getBuildShipCost(uint8 shipType_) external pure returns (uint256[] memory);
-    
-    function getAttribute(uint256 shipId_) external pure returns(uint256);
     
     function getShipAttackById(uint256 shipId_) external view returns(uint256);
     
