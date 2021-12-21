@@ -6,6 +6,7 @@ import "./token/Nft.sol";
 import "./interface/IRegistry.sol";
 import "./interface/IShip.sol";
 import "./interface/IShipConfig.sol";
+import "./interface/ICommodityERC20.sol";
 
 contract Ship is Nft, IShip {
 
@@ -54,8 +55,13 @@ contract Ship is Nft, IShip {
     }
 
     function buildShip(uint8 shipType_) public {
-        //        uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
-        //        home().userAssetSub(_msgSender(), costs);
+        address[] memory tokenArray = shipConfig().getBuildTokenArray(shipType_);
+        uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
+        
+        for(uint i=0; i<tokenArray.length; i++){
+            ICommodityERC20(tokenArray[i]).burn(costs[i]);
+        }
+
         _mintShip(_msgSender(), shipType_);
     }
 
