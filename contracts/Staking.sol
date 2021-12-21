@@ -294,17 +294,5 @@ contract Staking is Ownable {
 
         user.lastClaimTime = now;
     }
-
-    function consume(address who_, uint256[] calldata amountArray_) external {
-        require(canConsume(_msgSender()), "invalid caller");
-        require(amountArray_.length == assetInfoArray.length, "Size not equal");
-        convert(who_);
-
-        for (uint256 i = 0; i < amountArray_.length; ++i) {
-            uint256 amount = amountArray_[i];
-            userAssetInfoMap[who_][i].rewardAmount =
-                userAssetInfoMap[who_][i].rewardAmount.sub(amount);
-            // No need to burn because we didn't mint.
-        }
-    }
+    
 }
