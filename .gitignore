@@ -5,6 +5,7 @@ node_modules
 build
 contracts/artifacts
 temp
+.deps
 
 #Files
 package-lock.json
