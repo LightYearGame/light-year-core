@@ -5,6 +5,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^3.1.0",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "@pancakeswap/pancake-swap-lib": "^0.0.1",
     "truffle-hdwallet-provider": "^1.0.17"
   }
 }
