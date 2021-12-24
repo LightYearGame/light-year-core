@@ -6,6 +6,8 @@ build
 contracts/artifacts
 temp
 .deps
+contracts/uniswapv2
+contracts/mock
 
 #Files
 package-lock.json
