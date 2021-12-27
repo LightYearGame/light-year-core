@@ -40,6 +40,9 @@ contract Registry is Ownable, IRegistry {
 
     address public override tokenLightCoin;
 
+    address public override staking;
+    address public override burning;
+
     constructor() public {
         setOperator(_msgSender());
     }
@@ -84,10 +87,12 @@ contract Registry is Ownable, IRegistry {
 
     function setShip(address addr_) public onlyOwner {
         ship = addr_;
+        setOperator(ship);
     }
 
     function setHero(address addr_) public onlyOwner {
         hero = addr_;
+        setOperator(hero);
     }
 
     function setShipConfig(address addr_) public onlyOwner {
@@ -148,5 +153,16 @@ contract Registry is Ownable, IRegistry {
 
     function setTokenLightCoin(address tokenLightCoin_) external onlyOwner {
         tokenLightCoin = tokenLightCoin_;
+    }
+
+
+    function setStaking(address staking_) external onlyOwner {
+        staking = staking_;
+        setOperator(staking);
+    }
+
+    function setBurning(address burning_) external onlyOwner {
+        burning = burning_;
+        setOperator(hero);
     }
 }

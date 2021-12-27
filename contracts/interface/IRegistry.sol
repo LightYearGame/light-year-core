@@ -54,4 +54,9 @@ interface IRegistry {
     function tokenSilicate() external view returns (address);
 
     function tokenLightCoin() external view returns (address);
+
+
+    function staking() external view returns (address);
+
+    function burning() external view returns (address);
 }
