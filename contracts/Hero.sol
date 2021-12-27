@@ -105,7 +105,7 @@ contract Hero is Nft, IHero {
     }
 
     function _randomHeroType(bool advance_) private view returns (uint256){
-        uint256 random = _random(10 ** 18);
+        uint256 random = _random(1e18);
         uint256 heroType = heroConfig().randomHeroType(advance_, random);
         return heroType;
     }
