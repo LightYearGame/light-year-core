@@ -2,6 +2,8 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+
 import "./token/Nft.sol";
 import "./interface/IRegistry.sol";
 import "./interface/IHero.sol";
@@ -9,6 +11,8 @@ import "./interface/IHeroConfig.sol";
 import "./interface/ILightCoin.sol";
 
 contract Hero is Nft, IHero {
+
+    using SafeERC20 for ILightCoin;
 
     //const
     string constant public TOKEN_NAME = "LightYearHero";
@@ -67,6 +71,7 @@ contract Hero is Nft, IHero {
         uint256 totalPrice = amount_ * basePrice;
 
         //pay light year coin
+        tokenLightCoin().safeTransferFrom(msg.sender, address(this), totalPrice);
         tokenLightCoin().burn(totalPrice);
 
         //mint

@@ -59,6 +59,7 @@ contract Ship is Nft, IShip {
         uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
 
         for (uint i = 0; i < tokenArray.length; i++) {
+            ICommodityERC20(tokenArray[i]).operatorTransfer(_msgSender(), address(this), costs[i]);
             ICommodityERC20(tokenArray[i]).burn(costs[i]);
         }
 
