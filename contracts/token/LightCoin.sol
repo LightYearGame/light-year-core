@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // File: contracts/LGEWhitelisted.sol
-contract LGEWhitelisted is Context {
+contract LGEWhitelisted is Ownable {
 
     using SafeMath for uint256;
 
@@ -20,35 +21,16 @@ contract LGEWhitelisted is Context {
     uint256 public _lgeTimestamp;
     address public _lgePairAddress;
 
-    address public _whitelister;
-
     event WhitelisterTransferred(address indexed previousWhitelister, address indexed newWhitelister);
 
     constructor () internal {
-        _whitelister = _msgSender();
     }
 
-    modifier onlyWhitelister() {
-        require(_whitelister == _msgSender(), "Caller is not the whitelister");
-        _;
+    function getOwner() public view returns (address) {
+        return owner();
     }
 
-    function renounceWhitelister() external onlyWhitelister {
-        emit WhitelisterTransferred(_whitelister, address(0));
-        _whitelister = address(0);
-    }
-
-    function transferWhitelister(address newWhitelister) external onlyWhitelister {
-        _transferWhitelister(newWhitelister);
-    }
-
-    function _transferWhitelister(address newWhitelister) internal {
-        require(newWhitelister != address(0), "New whitelister is the zero address");
-        emit WhitelisterTransferred(_whitelister, newWhitelister);
-        _whitelister = newWhitelister;
-    }
-
-    function createLGEWhitelist(address pairAddress, uint256[] calldata durations, uint256[] calldata amountsMax) external onlyWhitelister() {
+    function createLGEWhitelist(address pairAddress, uint256[] calldata durations, uint256[] calldata amountsMax) external onlyOwner() {
         require(durations.length == amountsMax.length, "Invalid whitelist(s)");
 
         _lgePairAddress = pairAddress;
@@ -63,21 +45,23 @@ contract LGEWhitelisted is Context {
         }
     }
     
-    function modifyLGEWhitelist(uint256 index, uint256 duration, uint256 amountMax, address[] calldata addresses, bool enabled) external onlyWhitelister() {
+    function modifyLGEWhitelist(uint256 index, uint256 duration, uint256 amountMax, address[] calldata addresses, bool enabled) external onlyOwner() {
         require(index < _lgeWhitelistRounds.length, "Invalid index");
         require(amountMax > 0, "Invalid amountMax"); // seems like an unnecessary require statement
 
-        if(duration != _lgeWhitelistRounds[index].duration)
+        if(duration != _lgeWhitelistRounds[index].duration) {
             _lgeWhitelistRounds[index].duration = duration;
+        }
 
-        if(amountMax != _lgeWhitelistRounds[index].amountMax)
+        if(amountMax != _lgeWhitelistRounds[index].amountMax) {
             _lgeWhitelistRounds[index].amountMax = amountMax;
+        }
 
         for (uint256 i = 0; i < addresses.length; i++) {
             _lgeWhitelistRounds[index].addresses[addresses[i]] = enabled;
         }
     }
-    
+
     function getLGEWhitelistRound() public view returns (uint256, uint256, uint256, uint256, bool, uint256) {
 
         if(_lgeTimestamp > 0) {
@@ -89,8 +73,9 @@ contract LGEWhitelisted is Context {
                 WhitelistRound storage wlRound = _lgeWhitelistRounds[i];
 
                 wlCloseTimestampLast = wlCloseTimestampLast.add(wlRound.duration);
-                if(now <= wlCloseTimestampLast)
+                if(now <= wlCloseTimestampLast) {
                     return (i.add(1), wlRound.duration, wlCloseTimestampLast, wlRound.amountMax, wlRound.addresses[_msgSender()], wlRound.purchased[_msgSender()]);
+                }
             }
 
         }
@@ -103,8 +88,9 @@ contract LGEWhitelisted is Context {
         require(_lgeWhitelistRounds.length > 0, "No whitelist rounds defined");
         require(_lgePairAddress != address(0), "Pair address not defined");
 
-        if(_lgeTimestamp == 0 && sender != _lgePairAddress && recipient == _lgePairAddress && amount > 0)
+        if(_lgeTimestamp == 0 && sender != _lgePairAddress && recipient == _lgePairAddress && amount > 0) {
             _lgeTimestamp = now;
+        }
 
         if(sender == _lgePairAddress && recipient != _lgePairAddress) {
             (uint256 wlRoundNumber,,,,,) = getLGEWhitelistRound();
@@ -117,16 +103,14 @@ contract LGEWhitelisted is Context {
 
                 uint256 amountRemaining = 0;
 
-                if(wlRound.purchased[recipient] < wlRound.amountMax)
+                if(wlRound.purchased[recipient] < wlRound.amountMax) {
                     amountRemaining = wlRound.amountMax.sub(wlRound.purchased[recipient]);
+                }
 
                 require(amount <= amountRemaining, "LGE - Amount exceeds whitelist maximum");
                 wlRound.purchased[recipient] = wlRound.purchased[recipient].add(amount);
-
             }
-
         }
-
     }
 
 }
