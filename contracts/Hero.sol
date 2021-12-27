@@ -6,7 +6,7 @@ import "./token/Nft.sol";
 import "./interface/IRegistry.sol";
 import "./interface/IHero.sol";
 import "./interface/IHeroConfig.sol";
-import "./interface/ICommodityERC20.sol";
+import "./interface/ILightCoin.sol";
 
 contract Hero is Nft, IHero {
 
@@ -44,8 +44,8 @@ contract Hero is Nft, IHero {
         return IHeroConfig(registry().heroConfig());
     }
 
-    function tokenLightCoin() private view returns (ICommodityERC20){
-        return ICommodityERC20(registry().tokenLightCoin());
+    function tokenLightCoin() private view returns (ILightCoin){
+        return ILightCoin(registry().tokenLightCoin());
     }
 
     function setBaseURI(string memory baseURI_) external {
