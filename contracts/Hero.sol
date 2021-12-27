@@ -21,13 +21,13 @@ contract Hero is Nft, IHero {
     //registry
     address public registryAddress;
 
-    event DrawHeroResult(uint256[] heroIdArray);
-
     //only operator
     modifier onlyOperator(){
         require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
         _;
     }
+
+    event DrawHeroResult(uint256[] heroIdArray);
 
     /**
      * constructor
