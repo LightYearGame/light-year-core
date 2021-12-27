@@ -43,16 +43,16 @@ contract Burning is Ownable {
     function isCommodity(address token_) public view returns(bool) {
         return token_ == registry.tokenIron() ||
             token_ == registry.tokenGold() ||
-            token_ == registry.tokenEnergy() ||
-            token_ == registry.tokenSilicate();
+            token_ == registry.tokenSilicate() ||
+            token_ == registry.tokenEnergy();
     }
 
     function getCommodityArray() public view returns(address[] memory) {
         address[] memory array = new address[](4);
         array[0] = registry.tokenIron();
         array[1] = registry.tokenGold();
-        array[2] = registry.tokenEnergy();
-        array[3] = registry.tokenSilicate();
+        array[2] = registry.tokenSilicate();
+        array[3] = registry.tokenEnergy();
         return array;
     }
 
