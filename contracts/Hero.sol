@@ -125,7 +125,7 @@ contract Hero is Nft, IHero {
     /**
      *
      */
-    function upgradeHero(uint256 heroId_) external onlyOperator {
+    function upgradeHero(uint256 heroId_) external override onlyOperator {
         Info storage hero = heroInfoMap[heroId_];
         hero.level++;
     }
@@ -144,7 +144,4 @@ contract Hero is Nft, IHero {
         return random;
     }
 
-    function heroOwnerOf(uint256 heroId) external override view returns (address){
-        return ownerOf(heroId);
-    }
 }

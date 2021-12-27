@@ -11,7 +11,7 @@ interface IHero {
 
     function operatorTransfer(address from, address to, uint256 tokenId) external;
 
-    function heroOwnerOf(uint256 shipId) external view returns (address);
-
     function heroInfo(uint256 shipId) external view returns (Info memory);
+
+    function upgradeHero(uint256 heroId_) external;
 }

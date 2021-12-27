@@ -57,8 +57,8 @@ contract Ship is Nft, IShip {
     function buildShip(uint8 shipType_) public {
         address[] memory tokenArray = shipConfig().getBuildTokenArray(shipType_);
         uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
-        
-        for(uint i=0; i<tokenArray.length; i++){
+
+        for (uint i = 0; i < tokenArray.length; i++) {
             ICommodityERC20(tokenArray[i]).burn(costs[i]);
         }
 
@@ -95,8 +95,8 @@ contract Ship is Nft, IShip {
      */
     function upgradeShip(uint256 shipFromTokenId_, uint256 shipToTokenId_) external override {
         require(shipFromTokenId_ != shipToTokenId_, "upgradeShip: require different ship.");
-        require(shipOwnerOf(shipFromTokenId_) == _msgSender(), "upgradeShip: require owner.");
-        require(shipOwnerOf(shipToTokenId_) == _msgSender(), "upgradeShip: require owner.");
+        require(ownerOf(shipFromTokenId_) == _msgSender(), "upgradeShip: require owner.");
+        require(ownerOf(shipToTokenId_) == _msgSender(), "upgradeShip: require owner.");
 
         Info memory shipFrom = shipInfoMap[shipFromTokenId_];
         Info memory shipTo = shipInfoMap[shipToTokenId_];
