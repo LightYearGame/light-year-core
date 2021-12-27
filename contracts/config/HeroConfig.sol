@@ -19,9 +19,9 @@ contract HeroConfig is IHeroConfig {
 
     function getHeroPrice(bool advance_) public pure override returns (uint256){
         if (advance_) {
-            return 20;
+            return 20 * 10e18;
         } else {
-            return 10;
+            return 10 * 10e18;
         }
     }
 

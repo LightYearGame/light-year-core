@@ -23,32 +23,31 @@ contract ShipConfig is IShipConfig {
     }
 
     function getBuildTokenArray(uint8 shipType_) public view override returns (address[] memory){
-        address[] memory array = new address[](4);
-        if (shipType_ == 1){
+        address[] memory array = new address[](2);
+        if (shipType_ == 1) {
             array[0] = registry().tokenIron();
             array[1] = registry().tokenGold();
-            array[2] = registry().tokenSilicate();
-        }else {
+        } else if (shipType_ == 2) {
             array[0] = registry().tokenIron();
             array[1] = registry().tokenGold();
-            array[2] = registry().tokenSilicate();
-            array[3] = registry().tokenEnergy();
+        } else {
+            array[0] = registry().tokenIron();
+            array[1] = registry().tokenGold();
         }
         return array;
     }
 
     function getBuildShipCost(uint8 shipType_) public pure override returns (uint256[] memory){
-        uint256[] memory array = new uint256[](4);
+        uint256[] memory array = new uint256[](2);
         if (shipType_ == 1) {
             array[0] = 100;
             array[1] = 100;
-            array[2] = 100;
-            array[3] = 100;
+        } else if (shipType_ == 2) {
+            array[0] = 75;
+            array[1] = 75;
         } else {
-            array[0] = 105;
-            array[1] = 105;
-            array[2] = 105;
-            array[3] = 105;
+            array[0] = 50;
+            array[1] = 50;
         }
         return array;
     }

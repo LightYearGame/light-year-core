@@ -13,8 +13,6 @@ interface IShip {
 
     function operatorTransfer(address from, address to, uint256 tokenId) external;
 
-    function shipOwnerOf(uint256 shipId) external view returns (address);
-    
     function shipInfo(uint256 shipId) external view returns(Info memory);
 
     function upgradeShip(uint256 shipFromTokenId_, uint256 shipToTokenId_) external;

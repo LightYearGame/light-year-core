@@ -134,7 +134,4 @@ contract Ship is Nft, IShip {
         return random;
     }
 
-    function shipOwnerOf(uint256 shipId) public override view returns (address){
-        return ownerOf(shipId);
-    }
 }
