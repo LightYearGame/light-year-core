@@ -21,8 +21,6 @@ contract LGEWhitelisted is Ownable {
     uint256 public _lgeTimestamp;
     address public _lgePairAddress;
 
-    event WhitelisterTransferred(address indexed previousWhitelister, address indexed newWhitelister);
-
     constructor () internal {
     }
 
