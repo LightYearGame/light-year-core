@@ -72,7 +72,7 @@ contract Registry is Ownable, IRegistry {
 
     function setAccount(address addr_) public onlyOwner {
         account = addr_;
-        setOperator(explore);
+        setOperator(account);
     }
 
     function setExplore(address addr_) public onlyOwner {
@@ -163,6 +163,6 @@ contract Registry is Ownable, IRegistry {
 
     function setBurning(address burning_) external onlyOwner {
         burning = burning_;
-        setOperator(hero);
+        setOperator(burning);
     }
 }
