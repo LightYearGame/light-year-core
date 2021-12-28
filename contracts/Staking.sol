@@ -13,6 +13,7 @@ import "./interface/IMiningConfig.sol";
 import "./interface/IRegistry.sol";
 
 interface IFarm {
+    function pendingCake(uint256 pid_, address user_) external view returns(uint256);
     function deposit(uint256 pid_, uint256 amount_) external;
     function withdraw(uint256 pid_, uint256 amount_) external;
 }
@@ -129,6 +130,10 @@ contract Staking is Ownable {
         }));
     }
 
+    function _estimateRewardFromPool(IFarm farm, uint256 farmPid) public view returns(uint256) {
+        return farm.pendingCake(farmPid, address(this));
+    }
+
     function _swapIntoStableToken(address fromToken_, uint256 fromAmount_) private returns(uint256) {
         address[] memory path = new address[](2);
         path[0] = address(fromToken_);
@@ -145,6 +150,15 @@ contract Staking is Ownable {
         return amounts[1];
     }
 
+    function _estimateStableToken(address fromToken_, uint256 fromAmount_) private view returns(uint256) {
+        address[] memory path = new address[](2);
+        path[0] = address(fromToken_);
+        path[1] = address(stableToken());
+        uint256[] memory amounts = IUniswapV2Router02(registry.uniswapV2Router()).getAmountsOut(
+            fromAmount_, path);
+        return amounts[1];
+    }
+
     function _processReward(uint256 pid_, uint256 amount_) private {
         if (amount_ == 0) {
             return;
@@ -157,12 +171,23 @@ contract Staking is Ownable {
         }
 
         // Adds to accRewardPerShare.
-        if (pool.amount > 0) {
-            pool.accRewardPerShare = pool.accRewardPerShare.add(
-                amount_.mul(UNIT_PER_SHARE).div(pool.amount));
-        } else {
-            pool.accRewardPerShare = 0;
+        pool.accRewardPerShare = pool.accRewardPerShare.add(
+            amount_.mul(UNIT_PER_SHARE).div(pool.amount));
+    }
+
+    function _estimatePoolAccRewardPerShare(uint256 pid_, uint256 amount_) private view returns(uint256) {
+        PoolInfo storage pool = poolInfoArray[pid_];
+
+        if (amount_ == 0) {
+            return pool.accRewardPerShare;
         }
+
+        if (pool.rewardToken != stableToken()) {
+            amount_ = _estimateStableToken(pool.rewardToken, amount_);
+        }
+
+        return pool.accRewardPerShare.add(
+            amount_.mul(UNIT_PER_SHARE).div(pool.amount));
     }
 
     function deposit0(uint256 pid_, uint256 amount_) external {
@@ -268,8 +293,39 @@ contract Staking is Ownable {
             userAssetInfoMap[who_][i].rewardAmount =
                 userAssetInfoMap[who_][i].rewardAmount.add(addedAmount);
         }
+    }
 
-        user.rewardAmount = 0;
+    function getPendingAssetAmount(address who_, uint256 assetIndex_) external view returns(uint256) {
+        UserInfo storage user = userInfoMap[who_];
+
+        uint256 userRewardAmount = user.rewardAmount;
+
+        // Process reward of all pools.
+
+        for (uint256 pid = 0; pid < poolInfoArray.length; ++pid) {
+            PoolInfo storage pool = poolInfoArray[pid];
+            UserPoolInfo storage userPool = userPoolInfoMap[who_][pid];
+
+            require(pool.token != pool.rewardToken, "Case not handled");
+
+            if (userPool.amount == 0) {
+                continue;
+            }
+
+            uint256 rewardAmount = _estimateRewardFromPool(pool.farm, pool.farmPid);
+            uint256 accRewardPerShare = _estimatePoolAccRewardPerShare(pid, rewardAmount);
+
+            uint256 pending = userPool.amount.mul(accRewardPerShare).div(UNIT_PER_SHARE).sub(userPool.rewardDebt);
+            userRewardAmount = userRewardAmount.add(pending);
+        }
+
+        // Now convert reward to commodities.
+
+        uint256 addedAmount = userRewardAmount.mul(
+            assetInfoArray[assetIndex_].rate).mul(
+                getMultiplier(who_, assetIndex_)).div(
+                    RATE_BASE).div(MULTIPLIER_BASE);
+        return userAssetInfoMap[who_][assetIndex_].rewardAmount.add(addedAmount);
     }
 
     function claim(uint256[] calldata amountArray_) external {
@@ -290,9 +346,8 @@ contract Staking is Ownable {
             ICommodityERC20(assetInfoArray[i].token).mint(_msgSender(), amount);
         }
 
-        require(sum <= getClaimAmount(_msgSender()), "Claimed to many");
+        require(sum <= getClaimAmount(_msgSender()), "Claimed too many");
 
         user.lastClaimTime = now;
     }
-    
 }
