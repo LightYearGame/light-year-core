@@ -350,4 +350,9 @@ contract Staking is Ownable {
 
         user.lastClaimTime = now;
     }
+
+    function userClaimStartTime() external view returns (uint256){
+        UserInfo storage user = userInfoMap[_msgSender()];
+        return user.lastClaimTime + getClaimDuration(_msgSender());
+    }
 }
