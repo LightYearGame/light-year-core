@@ -49,6 +49,9 @@ contract ShipConfig is IShipConfig {
             array[0] = 50;
             array[1] = 50;
         }
+        
+        array[0] = array[0] * 1e18;
+        array[1] = array[1] * 1e18;
         return array;
     }
 
