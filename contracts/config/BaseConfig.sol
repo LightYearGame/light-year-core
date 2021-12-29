@@ -17,11 +17,11 @@ contract BaseConfig is IUpgradeableConfig {
         registry = registry_;
     }
 
-    function maximumLevel(uint256 itemIndex_) external override view returns(uint256) {
+    function maximumLevel(uint256 itemIndex_) external override view returns (uint256) {
         return 100;
     }
 
-    function getTokenArray(uint256 itemIndex_, uint256 level_) external override view returns(address[] memory) {
+    function getTokenArray(uint256 itemIndex_, uint256 level_) external override view returns (address[] memory) {
         address[] memory result = new address[](2);
 
         if (itemIndex_ == 0) {
@@ -29,20 +29,20 @@ contract BaseConfig is IUpgradeableConfig {
             result[1] = registry.tokenEnergy();
         } else {
             result[0] = registry.tokenSilicate();
-            result[1] = registry.tokenEnergy();  
+            result[1] = registry.tokenEnergy();
         }
 
         return result;
     }
 
-    function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns(uint256[] memory) {
+    function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
-        if(itemIndex_== 0){
-            result[0] = 100 * (2 ** level_);
-            result[1] = 100 * (2 ** level_);
-        }else{
-            result[0] = (level_ + 1) * 75;
-            result[1] = (level_ + 1) * 85;
+        if (itemIndex_ == 0) {
+            result[0] = 100 * (2 ** level_) * 1e18;
+            result[1] = 100 * (2 ** level_) * 1e18;
+        } else {
+            result[0] = (level_ + 1) * 75 * 1e18;
+            result[1] = (level_ + 1) * 85 * 1e18;
         }
         return result;
     }
