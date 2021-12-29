@@ -33,12 +33,12 @@ contract ResearchConfig is IUpgradeableConfig {
 
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
-        if(itemIndex_== 0){
-            result[0] = (level_ + 1) * 100;
-            result[1] = (level_ + 1) * 100;
-        }else{
-            result[0] = (level_ + 1) * 55;
-            result[1] = (level_ + 1) * 65;
+        if (itemIndex_ == 0) {
+            result[0] = (level_ + 1) * 100 * 1e18;
+            result[1] = (level_ + 1) * 100 * 1e18;
+        } else {
+            result[0] = (level_ + 1) * 55 * 1e18;
+            result[1] = (level_ + 1) * 65 * 1e18;
         }
         return result;
     }
