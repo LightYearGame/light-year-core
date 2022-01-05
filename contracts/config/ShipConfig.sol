@@ -22,13 +22,6 @@ contract ShipConfig is IShipConfig {
         return IShip(registry().ship());
     }
 
-    function getBuildTokenArray(uint8 shipType_) public view override returns (address[] memory){
-        address[] memory array = new address[](2);
-        array[0] = registry().tokenIron();
-        array[1] = registry().tokenGold();
-        return array;
-    }
-
     function getShipAttackById(uint256 shipId_) public view override returns (uint256){
         IShip.Info memory shipInfo = ship().shipInfo(shipId_);
         return getShipAttackByInfo(shipInfo);
@@ -86,7 +79,16 @@ contract ShipConfig is IShipConfig {
         return getShipCategory(info.shipType);
     }
 
+    function getBuildTokenArray(uint8 shipType_) public view override returns (address[] memory){
+        require(shipType_ >= 1 && shipType_ <= 19, "require correct ship type.");
+        address[] memory array = new address[](2);
+        array[0] = registry().tokenIron();
+        array[1] = registry().tokenGold();
+        return array;
+    }
+
     function getBuildShipCost(uint8 shipType_) public pure override returns (uint256[] memory){
+        require(shipType_ >= 1 && shipType_ <= 19, "require correct ship type.");
         uint256[] memory array = new uint256[](2);
         if (shipType_ == 1) {
             array[0] = 100;
@@ -146,7 +148,6 @@ contract ShipConfig is IShipConfig {
             array[0] = 20000;
             array[1] = 20000;
         }
-
         array[0] = array[0] * 1e18;
         array[1] = array[1] * 1e18;
         return array;
