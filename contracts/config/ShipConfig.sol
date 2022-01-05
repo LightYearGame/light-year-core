@@ -22,39 +22,6 @@ contract ShipConfig is IShipConfig {
         return IShip(registry().ship());
     }
 
-    function getBuildTokenArray(uint8 shipType_) public view override returns (address[] memory){
-        address[] memory array = new address[](2);
-        if (shipType_ == 1) {
-            array[0] = registry().tokenIron();
-            array[1] = registry().tokenGold();
-        } else if (shipType_ == 2) {
-            array[0] = registry().tokenIron();
-            array[1] = registry().tokenGold();
-        } else {
-            array[0] = registry().tokenIron();
-            array[1] = registry().tokenGold();
-        }
-        return array;
-    }
-
-    function getBuildShipCost(uint8 shipType_) public pure override returns (uint256[] memory){
-        uint256[] memory array = new uint256[](2);
-        if (shipType_ == 1) {
-            array[0] = 100;
-            array[1] = 100;
-        } else if (shipType_ == 2) {
-            array[0] = 75;
-            array[1] = 75;
-        } else {
-            array[0] = 50;
-            array[1] = 50;
-        }
-        
-        array[0] = array[0] * 1e18;
-        array[1] = array[1] * 1e18;
-        return array;
-    }
-
     function getShipAttackById(uint256 shipId_) public view override returns (uint256){
         IShip.Info memory shipInfo = ship().shipInfo(shipId_);
         return getShipAttackByInfo(shipInfo);
@@ -112,4 +79,77 @@ contract ShipConfig is IShipConfig {
         return getShipCategory(info.shipType);
     }
 
+    function getBuildTokenArray(uint8 shipType_) public view override returns (address[] memory){
+        require(shipType_ >= 1 && shipType_ <= 19, "require correct ship type.");
+        address[] memory array = new address[](2);
+        array[0] = registry().tokenIron();
+        array[1] = registry().tokenGold();
+        return array;
+    }
+
+    function getBuildShipCost(uint8 shipType_) public pure override returns (uint256[] memory){
+        require(shipType_ >= 1 && shipType_ <= 19, "require correct ship type.");
+        uint256[] memory array = new uint256[](2);
+        if (shipType_ == 1) {
+            array[0] = 100;
+            array[1] = 100;
+        } else if (shipType_ == 2) {
+            array[0] = 100;
+            array[1] = 100;
+        } else if (shipType_ == 3) {
+            array[0] = 300;
+            array[1] = 300;
+        } else if (shipType_ == 4) {
+            array[0] = 100;
+            array[1] = 100;
+        } else if (shipType_ == 5) {
+            array[0] = 1000;
+            array[1] = 1000;
+        } else if (shipType_ == 6) {
+            array[0] = 100;
+            array[1] = 100;
+        } else if (shipType_ == 7) {
+            array[0] = 600;
+            array[1] = 600;
+        } else if (shipType_ == 8) {
+            array[0] = 500;
+            array[1] = 500;
+        } else if (shipType_ == 9) {
+            array[0] = 1000;
+            array[1] = 1000;
+        } else if (shipType_ == 10) {
+            array[0] = 2000;
+            array[1] = 2000;
+        } else if (shipType_ == 11) {
+            array[0] = 800;
+            array[1] = 800;
+        } else if (shipType_ == 12) {
+            array[0] = 2000;
+            array[1] = 2000;
+        } else if (shipType_ == 13) {
+            array[0] = 5000;
+            array[1] = 5000;
+        } else if (shipType_ == 14) {
+            array[0] = 3000;
+            array[1] = 3000;
+        } else if (shipType_ == 15) {
+            array[0] = 8000;
+            array[1] = 8000;
+        } else if (shipType_ == 16) {
+            array[0] = 8000;
+            array[1] = 8000;
+        } else if (shipType_ == 17) {
+            array[0] = 12000;
+            array[1] = 12000;
+        } else if (shipType_ == 18) {
+            array[0] = 15000;
+            array[1] = 15000;
+        } else if (shipType_ == 19) {
+            array[0] = 20000;
+            array[1] = 20000;
+        }
+        array[0] = array[0] * 1e18;
+        array[1] = array[1] * 1e18;
+        return array;
+    }
 }
