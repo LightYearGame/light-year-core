@@ -2,26 +2,29 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
-import "./token/Nft.sol";
-import "./interface/IRegistry.sol";
-import "./interface/IShip.sol";
-import "./interface/IShipConfig.sol";
-import "./interface/ICommodityERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract Ship is Nft, IShip {
+import "../interface/IRegistry.sol";
+import "../interface/IShip.sol";
+import "../interface/IShipConfig.sol";
+import "../interface/ICommodityERC20.sol";
 
-    //const
+contract Ship is ERC721, IShip {
+
     string constant public TOKEN_NAME = "LightYearShip";
     string constant public TOKEN_SYMBOL = "LYS";
     string constant public TOKEN_BASE_URI = "https://lightyear.game/ship/";
 
-    //token id to ship
-    mapping(uint256 => Info) public shipInfoMap;
+    // Token id to ship
+    mapping(uint256 => Info) private _shipInfoMap;
 
-    //registry
+    // Registry
     address public registryAddress;
 
-    //only operator
+    // Next token id.
+    uint256 public nextTokenId = 1;
+
+    // Only operator
     modifier onlyOperator(){
         require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
         _;
@@ -30,8 +33,9 @@ contract Ship is Nft, IShip {
     /**
      * constructor
      */
-    constructor(address registry_) public Nft(TOKEN_NAME, TOKEN_SYMBOL, TOKEN_BASE_URI) {
+    constructor(address registry_) public ERC721(TOKEN_NAME, TOKEN_SYMBOL) {
         registryAddress = registry_;
+        _setBaseURI(TOKEN_BASE_URI);
     }
 
     function registry() private view returns (IRegistry){
@@ -51,7 +55,7 @@ contract Ship is Nft, IShip {
     }
 
     function shipInfo(uint256 shipId_) public override view returns (Info memory){
-        return shipInfoMap[shipId_];
+        return _shipInfoMap[shipId_];
     }
 
     function buildShip(uint8 shipType_) public {
@@ -72,23 +76,21 @@ contract Ship is Nft, IShip {
     function _mintShip(address addr_, uint8 shipType_) private {
 
         //mint nft
-        uint256 tokenId = _mintNft(addr_);
+        uint256 tokenId = nextTokenId;
+        ++nextTokenId;
 
-        //create ship
-        Info memory info = _createShip(shipType_);
-        shipInfoMap[tokenId] = info;
+        _mint(addr_, tokenId);
+
+        // Create ship info
+        _shipInfoMap[tokenId] = Info({
+            level: 1,
+            quality: _randomShipQuality(totalSupply()),
+            shipType: shipType_
+        });
     }
 
-    /**
-     * 
-     */
-    function _burnShip(uint256 tokenId) private {
-
-        //burn nft
-        _burnNft(tokenId);
-
-        //burn ship
-        delete shipInfoMap[tokenId];
+    function _randomShipQuality(uint256 seed_) private view returns (uint8) {
+        return shipConfig().randomShipQuality(seed_);
     }
 
     /**
@@ -99,40 +101,17 @@ contract Ship is Nft, IShip {
         require(ownerOf(shipFromTokenId_) == _msgSender(), "upgradeShip: require owner.");
         require(ownerOf(shipToTokenId_) == _msgSender(), "upgradeShip: require owner.");
 
-        Info memory shipFrom = shipInfoMap[shipFromTokenId_];
-        Info memory shipTo = shipInfoMap[shipToTokenId_];
+        Info memory shipFrom = _shipInfoMap[shipFromTokenId_];
+        Info storage shipTo = _shipInfoMap[shipToTokenId_];
+
         require(shipFrom.shipType == shipTo.shipType, "upgradeShip: require same ship type.");
         require(shipFrom.level == shipTo.level, "upgradeShip: require same ship level.");
 
-        Info memory newShip = Info(shipTo.health, shipTo.quality, shipTo.level + 1, shipTo.shipType);
-        shipInfoMap[shipToTokenId_] = newShip;
+        shipTo.quality = shipFrom.quality > shipTo.quality ? shipFrom.quality : shipTo.quality;
+        ++shipTo.level;
 
-        //burn ship
-        _burnShip(shipFromTokenId_);
+        // Burn ship
+        _burn(shipFromTokenId_);
+        delete _shipInfoMap[shipFromTokenId_];
     }
-
-    /**
-     *
-     */
-    function _createShip(uint8 shipType) private view returns (Info memory){
-        uint16 quality = uint16(_random(100) + 1);
-        uint16 level = 1;
-        Info memory info = Info(quality + 100, quality, level, shipType);
-        return info;
-    }
-
-    /**
-     * random
-     */
-    function _random(uint256 randomSize_) private view returns (uint256){
-        uint256 nonce = totalSupply();
-        uint256 difficulty = block.difficulty;
-        uint256 gaslimit = block.gaslimit;
-        uint256 number = block.number;
-        uint256 timestamp = block.timestamp;
-        uint256 gasprice = tx.gasprice;
-        uint256 random = uint256(keccak256(abi.encodePacked(nonce, difficulty, gaslimit, number, timestamp, gasprice))) % randomSize_;
-        return random;
-    }
-
 }

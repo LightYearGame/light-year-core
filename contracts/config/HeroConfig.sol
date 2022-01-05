@@ -36,9 +36,11 @@ contract HeroConfig is IHeroConfig {
         }
     }
 
-    function randomHeroType(bool advance_, uint256 random_) public view override returns (uint256){
-        uint256 r1 = random_ % 100;
-        uint256 r2 = _random(random_, 12);
+    function randomHeroType(bool advance_, uint256 seed_) public view override returns (uint8) {
+        uint256 random = _random(seed_, 1e18);
+        uint8 r1 = uint8(random % 100);
+        uint8 r2 = uint8(_random(r1, 12));
+
         if (!advance_) {
             if (r1 < 90) {
                 return r2;
@@ -56,6 +58,10 @@ contract HeroConfig is IHeroConfig {
                 return r2 + 36;
             }
         }
+    }
+
+    function randomHeroQuality(uint256 seed_) public view override returns (uint8) {
+        return uint8(_random(seed_, 100));
     }
 
     function getAttributesById(uint256 heroId_) public view override returns (uint256[] memory){

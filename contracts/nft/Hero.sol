@@ -3,29 +3,31 @@ pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import "./token/Nft.sol";
-import "./interface/IRegistry.sol";
-import "./interface/IHero.sol";
-import "./interface/IHeroConfig.sol";
-import "./interface/ILightCoin.sol";
+import "../interface/IRegistry.sol";
+import "../interface/IHero.sol";
+import "../interface/IHeroConfig.sol";
+import "../interface/ILightCoin.sol";
 
-contract Hero is Nft, IHero {
+contract Hero is ERC721, IHero {
 
     using SafeERC20 for ILightCoin;
 
-    //const
     string constant public TOKEN_NAME = "LightYearHero";
     string constant public TOKEN_SYMBOL = "LYH";
     string constant public TOKEN_BASE_URI = "https://lightyear.game/hero/";
 
-    //token id to hero
-    mapping(uint256 => Info) public heroInfoMap;
+    // Token id to hero info
+    mapping(uint256 => Info) private _heroInfoMap;
 
-    //registry
+    // Registry
     address public registryAddress;
 
-    //only operator
+    // Next token id.
+    uint256 public nextTokenId = 1;
+
+    // Only operator
     modifier onlyOperator(){
         require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
         _;
@@ -36,8 +38,9 @@ contract Hero is Nft, IHero {
     /**
      * constructor
      */
-    constructor(address registry_) public Nft(TOKEN_NAME, TOKEN_SYMBOL, TOKEN_BASE_URI) {
+    constructor(address registry_) public ERC721(TOKEN_NAME, TOKEN_SYMBOL) {
         registryAddress = registry_;
+        _setBaseURI(TOKEN_BASE_URI);
     }
 
     function registry() private view returns (IRegistry){
@@ -60,11 +63,11 @@ contract Hero is Nft, IHero {
         _transfer(from_, to_, tokenId_);
     }
 
-    function heroInfo(uint256 heroId_) public override view returns (Info memory){
-        return heroInfoMap[heroId_];
+    function heroInfo(uint256 heroId_) external override view returns (Info memory){
+        return _heroInfoMap[heroId_];
     }
 
-    function multipleDrawHero(uint256 amount_, bool advance_) public payable {
+    function multipleDrawHero(uint256 amount_, bool advance_) external payable {
 
         //base price
         uint256 basePrice = heroConfig().getHeroPrice(advance_);
@@ -90,63 +93,35 @@ contract Hero is Nft, IHero {
      */
     function _mintHero(address addr_, bool advance_) private returns (uint256){
 
-        //mint nft
-        uint256 tokenId = _mintNft(addr_);
+        // Mint nft
+        uint256 tokenId = nextTokenId;
+        ++nextTokenId;
 
-        //create hero
-        Info memory info = _createHero(advance_);
-        heroInfoMap[tokenId] = info;
+        _mint(addr_, tokenId);
+
+        // Fill hero info.
+        _heroInfoMap[tokenId] = Info({
+          level: 1,
+          quality: _randomHeroQuality(totalSupply()),
+          heroType: _randomHeroType(advance_, totalSupply() + 1)
+        });
 
         return tokenId;
     }
 
-    /**
-     *
-     */
-    function _createHero(bool advance_) private view returns (Info memory){
-        uint8 heroType = uint8(_randomHeroType(advance_));
-        Info memory info = Info(1, heroType);
-        return info;
+    function _randomHeroType(bool advance_, uint256 seed_) private view returns (uint8) {
+        return heroConfig().randomHeroType(advance_, seed_);
     }
 
-    function _randomHeroType(bool advance_) private view returns (uint256){
-        uint256 random = _random(1e18);
-        uint256 heroType = heroConfig().randomHeroType(advance_, random);
-        return heroType;
-    }
-
-    /**
-     * 
-     */
-    function _burnHero(uint256 tokenId_) private {
-
-        //burn nft
-        _burnNft(tokenId_);
-
-        //burn hero
-        delete heroInfoMap[tokenId_];
+    function _randomHeroQuality(uint256 seed_) private view returns (uint8) {
+        return heroConfig().randomHeroQuality(seed_);
     }
 
     /**
      *
      */
     function upgradeHero(uint256 heroId_) external override onlyOperator {
-        Info storage hero = heroInfoMap[heroId_];
-        hero.level++;
+        Info storage hero = _heroInfoMap[heroId_];
+	++hero.level;
     }
-
-    /**
-     * random
-     */
-    function _random(uint256 randomSize_) private view returns (uint256){
-        uint256 nonce = totalSupply();
-        uint256 difficulty = block.difficulty;
-        uint256 gaslimit = block.gaslimit;
-        uint256 number = block.number;
-        uint256 timestamp = block.timestamp;
-        uint256 gasprice = tx.gasprice;
-        uint256 random = uint256(keccak256(abi.encodePacked(nonce, difficulty, gaslimit, number, timestamp, gasprice))) % randomSize_;
-        return random;
-    }
-
 }

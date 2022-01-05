@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 
-import "./interface/IRegistry.sol";
-import "./interface/IUpgradeableConfig.sol";
-import "./common/Upgradeable.sol";
+import "../interface/IRegistry.sol";
+import "../interface/IUpgradeableConfig.sol";
+import "../common/Upgradeable.sol";
 
 contract Base is Upgradeable {
 
