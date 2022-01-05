@@ -9,14 +9,9 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import "./interface/IClaimConfig.sol";
 import "./interface/ICommodityERC20.sol";
+import "./interface/IFarm.sol";
 import "./interface/IMiningConfig.sol";
 import "./interface/IRegistry.sol";
-
-interface IFarm {
-    function pendingCake(uint256 pid_, address user_) external view returns(uint256);
-    function deposit(uint256 pid_, uint256 amount_) external;
-    function withdraw(uint256 pid_, uint256 amount_) external;
-}
 
 contract Staking is Ownable {
 
@@ -131,7 +126,7 @@ contract Staking is Ownable {
     }
 
     function _estimateRewardFromPool(IFarm farm, uint256 farmPid) public view returns(uint256) {
-        return farm.pendingCake(farmPid, address(this));
+        return farm.pendingReward(farmPid);
     }
 
     function _swapIntoStableToken(address fromToken_, uint256 fromAmount_) private returns(uint256) {
@@ -203,7 +198,7 @@ contract Staking is Ownable {
 
         IERC20(pool.token).safeTransferFrom(_msgSender(), address(this), amount_);
         IERC20(pool.token).approve(address(pool.farm), amount_);
-        pool.farm.deposit(pool.farmPid, amount_);
+        pool.farm.deposit(pool.token, pool.farmPid, amount_);
 
         uint256 balanceAfter = IERC20(pool.rewardToken).balanceOf(address(this));
         uint256 rewardAmount = balanceAfter.sub(balanceBefore);
@@ -231,7 +226,7 @@ contract Staking is Ownable {
 
         uint256 balanceBefore = IERC20(pool.rewardToken).balanceOf(address(this));
 
-        pool.farm.withdraw(pool.farmPid, amount_);
+        pool.farm.withdraw(pool.token, pool.farmPid, amount_);
         IERC20(pool.token).safeTransfer(_msgSender(), amount_);
 
         uint256 balanceAfter = IERC20(pool.rewardToken).balanceOf(address(this));
@@ -268,7 +263,7 @@ contract Staking is Ownable {
 
             uint256 balanceBefore = IERC20(pool.rewardToken).balanceOf(address(this));
 
-            pool.farm.deposit(pool.farmPid, 0);
+            pool.farm.claim(pool.farmPid);
 
             uint256 balanceAfter = IERC20(pool.rewardToken).balanceOf(address(this));
             uint256 rewardAmount = balanceAfter.sub(balanceBefore);
