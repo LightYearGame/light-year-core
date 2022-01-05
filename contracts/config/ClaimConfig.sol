@@ -18,7 +18,7 @@ contract ClaimConfig is IClaimConfig {
     }
 
     function getClaimAmount(address who_) external override view returns(uint256) {
-        return 64 * (2 ** research().levelMap(who_, 0)) * 1e18;
+        return 128 * (2 ** research().levelMap(who_, 0)) * 1e18;
     }
 
     function getClaimDuration(address who_) external override view returns(uint256) {
