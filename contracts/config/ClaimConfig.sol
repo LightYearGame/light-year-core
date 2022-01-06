@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../interface/IClaimConfig.sol";
 import "../interface/IRegistry.sol";
 import "../interface/IUpgradeable.sol";
 
 contract ClaimConfig is IClaimConfig {
+    using SafeMath for uint256;
 
     IRegistry public registry;
 
@@ -18,7 +20,8 @@ contract ClaimConfig is IClaimConfig {
     }
 
     function getClaimAmount(address who_) external override view returns(uint256) {
-        return 128 * (2 ** research().levelMap(who_, 0)) * 1e18;
+        uint256 base = 128;
+        return base.mul(1e18).mul(2 ** research().levelMap(who_, 0));
     }
 
     function getClaimDuration(address who_) external override view returns(uint256) {
