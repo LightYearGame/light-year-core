@@ -61,6 +61,7 @@ contract Ship is ERC721, IShip {
     function buildShip(uint8 shipType_) public {
         address[] memory tokenArray = shipConfig().getBuildTokenArray(shipType_);
         uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
+        require(tokenArray.length == costs.length, "buildShip: require same array length.");
 
         for (uint i = 0; i < tokenArray.length; i++) {
             ICommodityERC20(tokenArray[i]).operatorTransfer(_msgSender(), address(this), costs[i]);
