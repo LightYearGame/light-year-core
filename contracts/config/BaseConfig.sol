@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../interface/IRegistry.sol";
 import "../interface/IUpgradeableConfig.sol";
 
 
 contract BaseConfig is IUpgradeableConfig {
+    using SafeMath for uint256;
 
     // 0 - base level
     // 1 to 4 - asset levels.
@@ -38,11 +40,11 @@ contract BaseConfig is IUpgradeableConfig {
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
         if (itemIndex_ == 0) {
-            result[0] = 100 * (2 ** level_) * 1e18;
-            result[1] = 100 * (2 ** level_) * 1e18;
+            result[0] = (2 ** level_).mul(100).mul(1e18);
+            result[1] = (2 ** level_).mul(100).mul(1e18);
         } else {
-            result[0] = (level_ + 1) * 75 * 1e18;
-            result[1] = (level_ + 1) * 85 * 1e18;
+            result[0] = (level_ + 1).mul(75).mul(1e18);
+            result[1] = (level_ + 1).mul(75).mul(1e18);
         }
         return result;
     }
