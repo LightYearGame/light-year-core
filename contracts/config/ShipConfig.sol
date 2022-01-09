@@ -32,11 +32,11 @@ contract ShipConfig is IShipConfig {
             array[0] = 100;
             array[1] = 100;
         } else if (shipType_ == 2) {
-            array[0] = 100;
-            array[1] = 100;
+            array[0] = 4000;
+            array[1] = 4000;
         } else if (shipType_ == 3) {
-            array[0] = 300;
-            array[1] = 300;
+            array[0] = 5000;
+            array[1] = 5000;
         } else if (shipType_ == 4) {
             array[0] = 100;
             array[1] = 100;
@@ -47,44 +47,44 @@ contract ShipConfig is IShipConfig {
             array[0] = 100;
             array[1] = 100;
         } else if (shipType_ == 7) {
-            array[0] = 600;
-            array[1] = 600;
+            array[0] = 6000;
+            array[1] = 6000;
         } else if (shipType_ == 8) {
-            array[0] = 500;
-            array[1] = 500;
+            array[0] = 400;
+            array[1] = 400;
         } else if (shipType_ == 9) {
-            array[0] = 1000;
-            array[1] = 1000;
+            array[0] = 10000;
+            array[1] = 10000;
         } else if (shipType_ == 10) {
-            array[0] = 2000;
-            array[1] = 2000;
+            array[0] = 11000;
+            array[1] = 11000;
         } else if (shipType_ == 11) {
             array[0] = 800;
             array[1] = 800;
         } else if (shipType_ == 12) {
-            array[0] = 2000;
-            array[1] = 2000;
+            array[0] = 1000;
+            array[1] = 1000;
         } else if (shipType_ == 13) {
-            array[0] = 5000;
-            array[1] = 5000;
+            array[0] = 12000;
+            array[1] = 12000;
         } else if (shipType_ == 14) {
             array[0] = 3000;
             array[1] = 3000;
         } else if (shipType_ == 15) {
-            array[0] = 8000;
-            array[1] = 8000;
+            array[0] = 2000;
+            array[1] = 2000;
         } else if (shipType_ == 16) {
-            array[0] = 8000;
-            array[1] = 8000;
-        } else if (shipType_ == 17) {
-            array[0] = 12000;
-            array[1] = 12000;
-        } else if (shipType_ == 18) {
-            array[0] = 15000;
-            array[1] = 15000;
-        } else if (shipType_ == 19) {
             array[0] = 20000;
             array[1] = 20000;
+        } else if (shipType_ == 17) {
+            array[0] = 24000;
+            array[1] = 24000;
+        } else if (shipType_ == 18) {
+            array[0] = 30000;
+            array[1] = 30000;
+        } else if (shipType_ == 19) {
+            array[0] = 100000;
+            array[1] = 100000;
         }
         array[0] = array[0] * 1e18;
         array[1] = array[1] * 1e18;
