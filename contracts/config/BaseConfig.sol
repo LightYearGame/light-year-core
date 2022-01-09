@@ -40,11 +40,11 @@ contract BaseConfig is IUpgradeableConfig {
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
         if (itemIndex_ == 0) {
-            result[0] = (2 ** level_).mul(100).mul(1e18);
-            result[1] = (2 ** level_).mul(100).mul(1e18);
+            result[0] = (2 ** level_).mul(200).mul(1e18);
+            result[1] = (2 ** level_).mul(200).mul(1e18);
         } else {
-            result[0] = (level_ + 1).mul(75).mul(1e18);
-            result[1] = (level_ + 1).mul(75).mul(1e18);
+            result[0] = (2 ** level_).mul(150).mul(1e18);
+            result[1] = (2 ** level_).mul(150).mul(1e18);
         }
         return result;
     }
