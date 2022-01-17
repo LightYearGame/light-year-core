@@ -338,7 +338,7 @@ contract Staking is Ownable {
             sum = sum.add(amount);
             userAssetInfoMap[_msgSender()][i].rewardAmount =
                 userAssetInfoMap[_msgSender()][i].rewardAmount.sub(amount);
-            ICommodityERC20(assetInfoArray[i].token).mint(_msgSender(), amount);
+            ICommodityERC20(assetInfoArray[i].token).mintByInternalContracts(_msgSender(), amount);
         }
 
         require(sum <= getClaimAmount(_msgSender()), "Claimed too many");

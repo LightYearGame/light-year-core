@@ -59,7 +59,7 @@ contract Burning is Ownable {
     function burn(address token_, uint256 amount_) external {
         require(isCommodity(token_), "Not commodity");
 
-        ICommodityERC20(token_).operatorTransfer(_msgSender(), address(this), amount_);
+        ICommodityERC20(token_).transferFrom(_msgSender(), address(this), amount_);
         ICommodityERC20(token_).burn(amount_);
 
         uint256 today = getToday();

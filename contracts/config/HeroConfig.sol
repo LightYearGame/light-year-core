@@ -17,7 +17,7 @@ contract HeroConfig is IHeroConfig {
         return IRegistry(registryAddress);
     }
 
-    function getHeroPrice(bool advance_) public pure override returns (uint256){
+    function getHeroPrice(bool advance_) external pure override returns (uint256){
         if (advance_) {
             return 10000 * 1e18;
         } else {
@@ -25,7 +25,7 @@ contract HeroConfig is IHeroConfig {
         }
     }
 
-    function randomHeroType(bool advance_, uint256 seed_) public view override returns (uint8) {
+    function randomHeroType(bool advance_, uint256 seed_) external view override returns (uint8) {
         uint256 random = _random(seed_, 1e18);
         uint8 r1 = uint8(random % 100);
         uint8 r2 = uint8(_random(r1, 12));
@@ -34,22 +34,35 @@ contract HeroConfig is IHeroConfig {
             if (r1 < 90) {
                 return r2;
             } else if (r1 < 98) {
-                return r2 + 12;
+                return r2 + uint8(12);
             } else {
-                return r2 + 24;
+                return r2 + uint8(24);
             }
         } else {
             if (r1 < 80) {
-                return r2 + 12;
+                return r2 + uint8(12);
             } else if (r1 < 98) {
-                return r2 + 24;
+                return r2 + uint8(24);
             } else {
-                return r2 + 36;
+                return r2 + uint8(36);
             }
         }
     }
 
-    function randomHeroQuality(uint256 seed_) public view override returns (uint8) {
+    function randomHeroTypeRarier(uint8 heroType_, uint256 seed_) external view override returns (uint8) {
+        uint8 r = uint8(_random(seed_, 12));
+        if (heroType_ < 12) {
+          return r + uint8(12);
+        } else if (heroType_ < 24) {
+          return r + uint8(24);
+        } else if (heroType_ < 36) {
+          return r + uint8(36);
+        } else {
+          return heroType_;
+        }
+    }
+
+    function randomHeroQuality(uint256 seed_) external view override returns (uint8) {
         return uint8(_random(seed_, 100) + 1);
     }
 

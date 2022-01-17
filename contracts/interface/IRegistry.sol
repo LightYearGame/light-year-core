@@ -3,9 +3,6 @@ pragma solidity ^0.6.12;
 
 interface IRegistry {
 
-    // operator
-    function isOperator(address operator_) external view returns (bool);
-
     // base and research
     function base() external view returns (address);
     function research() external view returns (address);
@@ -46,4 +43,6 @@ interface IRegistry {
     function tokenSilicate() external view returns (address);
     function tokenLightCoin() external view returns (address);
 
+    // access
+    function canMintCommodity(address) external view returns (bool);
 }

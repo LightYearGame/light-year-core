@@ -4,9 +4,8 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interface/IRegistry.sol";
 
+// Registry will be managed by timelock and a governance contract.
 contract Registry is Ownable, IRegistry {
-
-    mapping(address => bool) private operatorMap;
 
     // base and research
     address public override base;
@@ -48,33 +47,26 @@ contract Registry is Ownable, IRegistry {
     address public override tokenSilicate;
     address public override tokenLightCoin;
 
-    constructor() public {
-        setOperator(_msgSender());
-    }
+    // access
+    mapping(address => bool) public override canMintCommodity;
 
-    function isOperator(address operator_) public override view returns (bool){
-        return operatorMap[operator_];
-    }
-
-    function setOperator(address operator_) public onlyOwner {
-        operatorMap[operator_] = true;
-    }
+    constructor() public {}
 
     // base and research
-    function setBase(address base_) external onlyOwner {base = base_; setOperator(base_);}
-    function setResearch(address research_) external onlyOwner {research = research_; setOperator(research_);}
+    function setBase(address base_) external onlyOwner {base = base_;}
+    function setResearch(address research_) external onlyOwner {research = research_;}
 
     // fleets and ships
-    function setFleets(address addr_) public onlyOwner {fleets = addr_; setOperator(fleets);}
-    function setAccount(address addr_) public onlyOwner {account = addr_; setOperator(account);}
-    function setExplore(address addr_) public onlyOwner {explore = addr_; setOperator(explore);}
-    function setBattle(address addr_) public onlyOwner {battle = addr_; setOperator(battle);}
-    function setShip(address addr_) public onlyOwner {ship = addr_; setOperator(ship);}
-    function setHero(address addr_) public onlyOwner {hero = addr_; setOperator(hero);}
+    function setFleets(address addr_) public onlyOwner {fleets = addr_;}
+    function setAccount(address addr_) public onlyOwner {account = addr_;}
+    function setExplore(address addr_) public onlyOwner {explore = addr_;}
+    function setBattle(address addr_) public onlyOwner {battle = addr_;}
+    function setShip(address addr_) public onlyOwner {ship = addr_;}
+    function setHero(address addr_) public onlyOwner {hero = addr_;}
 
     // staking and burning
-    function setStaking(address addr_) external onlyOwner {staking = addr_; setOperator(addr_);}
-    function setBurning(address addr_) external onlyOwner {burning = addr_; setOperator(addr_);}
+    function setStaking(address addr_) external onlyOwner {staking = addr_;}
+    function setBurning(address addr_) external onlyOwner {burning = addr_;}
     function setUniswapV2Router(address addr_) external onlyOwner {uniswapV2Router = addr_;}
     function setStableToken(address addr_) external onlyOwner {stableToken = addr_;}
 
@@ -100,4 +92,8 @@ contract Registry is Ownable, IRegistry {
     function setTokenSilicate(address addr_) external onlyOwner {tokenSilicate = addr_;}
     function setTokenLightCoin(address addr_) external onlyOwner {tokenLightCoin = addr_;}
 
+    // access
+    function setCanMintCommodity(address addr_, bool value_) external onlyOwner {
+        canMintCommodity[addr_] = value_;
+    }
 }

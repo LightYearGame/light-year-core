@@ -9,13 +9,15 @@ import "../interface/IShip.sol";
 import "../interface/IShipConfig.sol";
 import "../interface/ICommodityERC20.sol";
 
-contract Ship is ERC721, IShip {
+import "../common/PreMintable.sol";
+
+contract Ship is ERC721, IShip, PreMintable {
 
     string constant public TOKEN_NAME = "LightYearShip";
     string constant public TOKEN_SYMBOL = "LYS";
     string constant public TOKEN_BASE_URI = "https://lightyear.game/ship/";
 
-    // Token id to ship
+    // Token id to ship info
     mapping(uint256 => Info) private _shipInfoMap;
 
     // Registry
@@ -24,11 +26,8 @@ contract Ship is ERC721, IShip {
     // Next token id.
     uint256 public nextTokenId = 1;
 
-    // Only operator
-    modifier onlyOperator(){
-        require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
-        _;
-    }
+    event BuildShip(address who_, uint256 shipType_);
+    event UpgradeShip(address who_, uint256 fromTokenId_, uint256 toTokenId_, uint8 level_);
 
     /**
      * constructor
@@ -46,16 +45,15 @@ contract Ship is ERC721, IShip {
         return IShipConfig(registry().shipConfig());
     }
 
-    function setBaseURI(string memory baseURI_) external {
-        _setBaseURI(baseURI_);
-    }
-
-    function operatorTransfer(address from_, address to_, uint256 tokenId_) external override onlyOperator {
-        _transfer(from_, to_, tokenId_);
-    }
-
     function shipInfo(uint256 shipId_) public override view returns (Info memory){
         return _shipInfoMap[shipId_];
+    }
+
+    // Only for premint. Check PreMintable.sol
+    function mint(address to_, uint8[] memory shipTypeArray_) external onlyForPreMint {
+        for (uint256 i = 0; i < shipTypeArray_.length; ++i) {
+            _mintShip(to_, shipTypeArray_[i]);
+        }
     }
 
     function buildShip(uint8 shipType_) public {
@@ -64,15 +62,17 @@ contract Ship is ERC721, IShip {
         require(tokenArray.length == costs.length, "buildShip: require same array length.");
 
         for (uint i = 0; i < tokenArray.length; i++) {
-            ICommodityERC20(tokenArray[i]).operatorTransfer(_msgSender(), address(this), costs[i]);
+            ICommodityERC20(tokenArray[i]).transferFrom(_msgSender(), address(this), costs[i]);
             ICommodityERC20(tokenArray[i]).burn(costs[i]);
         }
 
         _mintShip(_msgSender(), shipType_);
+
+        emit BuildShip(_msgSender(), shipType_);
     }
 
     /**
-     * mint ship
+     * Mint ship
      */
     function _mintShip(address addr_, uint8 shipType_) private {
 
@@ -95,15 +95,15 @@ contract Ship is ERC721, IShip {
     }
 
     /**
-     *
+     * Upgrade ship.
      */
-    function upgradeShip(uint256 shipFromTokenId_, uint256 shipToTokenId_) external override {
-        require(shipFromTokenId_ != shipToTokenId_, "upgradeShip: require different ship.");
-        require(ownerOf(shipFromTokenId_) == _msgSender(), "upgradeShip: require owner.");
-        require(ownerOf(shipToTokenId_) == _msgSender(), "upgradeShip: require owner.");
+    function upgradeShip(uint256 fromTokenId_, uint256 toTokenId_) external override {
+        require(fromTokenId_ != toTokenId_, "upgradeShip: require different ship.");
+        require(ownerOf(fromTokenId_) == _msgSender(), "upgradeShip: require owner.");
+        require(ownerOf(toTokenId_) == _msgSender(), "upgradeShip: require owner.");
 
-        Info memory shipFrom = _shipInfoMap[shipFromTokenId_];
-        Info storage shipTo = _shipInfoMap[shipToTokenId_];
+        Info memory shipFrom = _shipInfoMap[fromTokenId_];
+        Info storage shipTo = _shipInfoMap[toTokenId_];
 
         require(shipFrom.shipType == shipTo.shipType, "upgradeShip: require same ship type.");
         require(shipFrom.level == shipTo.level, "upgradeShip: require same ship level.");
@@ -112,7 +112,9 @@ contract Ship is ERC721, IShip {
         ++shipTo.level;
 
         // Burn ship
-        _burn(shipFromTokenId_);
-        delete _shipInfoMap[shipFromTokenId_];
+        _burn(fromTokenId_);
+        delete _shipInfoMap[fromTokenId_];
+
+        emit UpgradeShip(_msgSender(), fromTokenId_, toTokenId_, shipTo.level);
     }
 }

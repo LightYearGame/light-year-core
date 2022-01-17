@@ -2,42 +2,36 @@
 pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 import "./../interface/ICommodityERC20.sol";
 import "./../interface/IRegistry.sol";
 
-contract CommodityERC20 is ERC20 {
-    using SafeMath for uint256;
+import "../common/PreMintable.sol";
 
-    //registry
-    address public registryAddress;
+contract CommodityERC20 is ERC20, ICommodityERC20, PreMintable {
 
-    //only operator
-    modifier onlyOperator(){
-        require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
-        _;
-    }
+    address public registry;
 
     constructor(
         string memory name,
         string memory symbol,
         address registry_
     ) public ERC20(name, symbol) {
-        registryAddress = registry_;
+        registry = registry_;
     }
 
-    function registry() private view returns (IRegistry){
-        return IRegistry(registryAddress);
-    }
-
-    function operatorTransfer(address sender_, address recipient_, uint256 amount_) public onlyOperator {
-        _transfer(sender_, recipient_, amount_);
-    }
-
-    function mint(address to_, uint256 amount_) public onlyOperator {
+    // Only for premint. Check PreMintable.sol
+    function mint(address to_, uint256 amount_) external onlyForPreMint {
         _mint(to_, amount_);
     }
 
-    function burn(uint256 amount_) public {
+    // Currently staking.sol (in light-year-core) and explore.sol (in light-year-battle) can mint.
+    function mintByInternalContracts(address to_, uint256 amount_) external override {
+        require(IRegistry(registry).canMintCommodity(_msgSender()), "Access denied");
+        _mint(to_, amount_);
+    }
+
+    function burn(uint256 amount_) external override {
         _burn(_msgSender(), amount_);
     }
 }
