@@ -2,7 +2,6 @@
 pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
@@ -31,8 +30,9 @@ abstract contract Upgradeable is IUpgradeable, Context {
 
         address[] memory tokenArray = _config().getTokenArray(itemIndex_, level);
         uint256[] memory costArray = _config().getCostArray(itemIndex_, level);
+
         for (uint256 i = 0; i < tokenArray.length; ++i) {
-            ICommodityERC20(tokenArray[i]).operatorTransfer(_msgSender(), address(this), costArray[i]);
+            ICommodityERC20(tokenArray[i]).transferFrom(_msgSender(), address(this), costArray[i]);
             ICommodityERC20(tokenArray[i]).burn(costArray[i]);
         }
 

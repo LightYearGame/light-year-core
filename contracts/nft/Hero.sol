@@ -2,7 +2,6 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "../interface/IRegistry.sol";
@@ -10,9 +9,9 @@ import "../interface/IHero.sol";
 import "../interface/IHeroConfig.sol";
 import "../interface/ILightCoin.sol";
 
-contract Hero is ERC721, IHero {
+import "../common/PreMintable.sol";
 
-    using SafeERC20 for ILightCoin;
+contract Hero is ERC721, IHero, PreMintable {
 
     string constant public TOKEN_NAME = "LightYearHero";
     string constant public TOKEN_SYMBOL = "LYH";
@@ -27,13 +26,9 @@ contract Hero is ERC721, IHero {
     // Next token id.
     uint256 public nextTokenId = 1;
 
-    // Only operator
-    modifier onlyOperator(){
-        require(registry().isOperator(msg.sender), "onlyOperator: require operator.");
-        _;
-    }
-
-    event DrawHeroResult(uint256[] heroIdArray);
+    event DrawHeroResult(address who_, uint256[] heroIdArray_);
+    event UpgradeHero(address who_, uint256 fromTokenId_, uint256 toTokenId_, uint8 level_);
+    event ConvertHero(address who_, uint256 tokenId_, uint8 heroLevel_, uint8 heroType_);
 
     /**
      * constructor
@@ -55,73 +50,91 @@ contract Hero is ERC721, IHero {
         return ILightCoin(registry().tokenLightCoin());
     }
 
-    function setBaseURI(string memory baseURI_) external {
-        _setBaseURI(baseURI_);
-    }
-
-    function operatorTransfer(address from_, address to_, uint256 tokenId_) external override onlyOperator {
-        _transfer(from_, to_, tokenId_);
-    }
-
-    function heroInfo(uint256 heroId_) external override view returns (Info memory){
+    function heroInfo(uint256 heroId_) external override view returns (Info memory) {
         return _heroInfoMap[heroId_];
     }
 
-    function multipleDrawHero(uint256 amount_, bool advance_) external payable {
+    // Only for premint. Check PreMintable.sol
+    function mint(address to_, uint8[] memory heroTypeArray_) external onlyForPreMint {
+        for (uint256 i = 0; i < heroTypeArray_.length; ++i) {
+            _mintHero(to_, heroTypeArray_[i]);
+        }
+    }
+
+    function multipleDrawHero(uint256 amount_, bool advance_) external {
 
         //base price
         uint256 basePrice = heroConfig().getHeroPrice(advance_);
         uint256 totalPrice = amount_ * basePrice;
 
         //pay light year coin
-        tokenLightCoin().safeTransferFrom(msg.sender, address(this), totalPrice);
+        tokenLightCoin().transferFrom(msg.sender, address(this), totalPrice);
         tokenLightCoin().burn(totalPrice);
 
         //mint
         uint256[] memory heroIdArray = new uint256[](amount_);
         for (uint i = 0; i < amount_; i++) {
-            uint256 tokenId = _mintHero(_msgSender(), advance_);
+            uint256 tokenId = _mintRandomHero(_msgSender(), advance_);
             heroIdArray[i] = tokenId;
         }
 
         //event
-        emit DrawHeroResult(heroIdArray);
+        emit DrawHeroResult(_msgSender(), heroIdArray);
     }
 
-    /**
-     * mint hero
-     */
-    function _mintHero(address addr_, bool advance_) private returns (uint256){
-
-        // Mint nft
+    function _generateTokenId() private returns (uint256) {
         uint256 tokenId = nextTokenId;
         ++nextTokenId;
+        return tokenId;
+    }
+
+    function _mintHero(address addr_, uint8 heroType_) private returns (uint256) {
+        uint256 tokenId = _generateTokenId();
 
         _mint(addr_, tokenId);
 
         // Fill hero info.
         _heroInfoMap[tokenId] = Info({
-          level: 1,
-          quality: _randomHeroQuality(totalSupply()),
-          heroType: _randomHeroType(advance_, totalSupply() + 1)
+            level: 1,
+            quality: heroConfig().randomHeroQuality(totalSupply()),
+            heroType: heroType_ 
         });
 
         return tokenId;
     }
 
-    function _randomHeroType(bool advance_, uint256 seed_) private view returns (uint8) {
-        return heroConfig().randomHeroType(advance_, seed_);
+    function _mintRandomHero(address addr_, bool advance_) private returns (uint256) {
+        uint8 heroType = heroConfig().randomHeroType(advance_, totalSupply() + 1);
+        return _mintHero(addr_, heroType);
     }
 
-    function _randomHeroQuality(uint256 seed_) private view returns (uint8) {
-        return heroConfig().randomHeroQuality(seed_);
+    function upgradeHero(uint256 heroFromTokenId_, uint256 heroToTokenId_) external override {
+        require(heroFromTokenId_ != heroToTokenId_, "upgradeShip: require different ship.");
+        require(ownerOf(heroFromTokenId_) == _msgSender(), "upgradeHero: require owner.");
+        require(ownerOf(heroToTokenId_) == _msgSender(), "upgradeHero: require owner.");
+
+        Info memory heroFrom = _heroInfoMap[heroFromTokenId_];
+        Info storage heroTo = _heroInfoMap[heroToTokenId_];
+
+        require(heroFrom.heroType == heroTo.heroType, "upgradeShip: require same hero type.");
+        require(heroFrom.level == heroTo.level, "upgradeShip: require same hero level.");
+
+        heroTo.quality = heroFrom.quality > heroTo.quality ? heroFrom.quality : heroTo.quality;
+        ++heroTo.level;
+
+        // Burn hero
+        _burn(heroFromTokenId_);
+        delete _heroInfoMap[heroFromTokenId_];
+
+        emit UpgradeHero(_msgSender(), heroFromTokenId_, heroToTokenId_, heroTo.level);
     }
 
-    /**
-     *
-     */
-    function upgradeHero(uint256 heroId_) external override onlyOperator {
-        Info storage hero = _heroInfoMap[heroId_];
-	++hero.level;
+    function convertHero(uint256 heroTokenId_) external override {
+        Info storage info = _heroInfoMap[heroTokenId_];
+        require(info.level >= 4);
+        info.level -= 3;
+        info.heroType = heroConfig().randomHeroTypeRarier(info.heroType, totalSupply());
+
+        emit ConvertHero(_msgSender(), heroTokenId_, info.level, info.heroType);
     }
 }
