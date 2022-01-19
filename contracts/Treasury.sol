@@ -10,7 +10,10 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./interface/ILightCoin.sol";
 import "./interface/IRegistry.sol";
 
-contract Treasury is Ownable {
+import "./common/NoReentry.sol";
+import "./common/OnlyEOA.sol";
+
+contract Treasury is Ownable, NoReentry, OnlyEOA {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -24,12 +27,6 @@ contract Treasury is Ownable {
 
     constructor (IRegistry registry_) public {
         registry = registry_;
-    }
-
-    modifier onlyEOA() {
-        // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "Must use EOA");
-        _;
     }
 
     function setDev(address dev_) external onlyOwner {
@@ -49,7 +46,7 @@ contract Treasury is Ownable {
     // If the problem still exists, we will add oracle and upgrade the code, but
     // at this point we don't want to overkill.
     //
-    function process(uint256 amount_) external onlyEOA {
+    function process(uint256 amount_) external onlyEOA noReentry {
         uint256 balance = IERC20(registry.stableToken()).balanceOf(address(this));
         require(amount_ <= balance, "more than balance");
         require(dev != address(0), "Dev is 0x0");

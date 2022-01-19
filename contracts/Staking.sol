@@ -13,7 +13,10 @@ import "./interface/IFarm.sol";
 import "./interface/IMiningConfig.sol";
 import "./interface/IRegistry.sol";
 
-contract Staking is Ownable {
+import "./common/NoReentry.sol";
+import "./common/OnlyEOA.sol";
+
+contract Staking is Ownable, NoReentry, OnlyEOA {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -65,12 +68,6 @@ contract Staking is Ownable {
 
     constructor (IRegistry registry_) public {
         registry = registry_;
-    }
-
-    modifier onlyEOA() {
-        // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "Must use EOA");
-        _;
     }
 
     function poolInfoArrayLength() external view returns (uint256) {
@@ -201,7 +198,7 @@ contract Staking is Ownable {
             amount_.mul(UNIT_PER_SHARE).div(pool.amount));
     }
 
-    function deposit0(uint256 pid_, uint256 amount_) external {
+    function deposit0(uint256 pid_, uint256 amount_) external noReentry {
         PoolInfo storage pool = poolInfoArray[pid_];
         UserInfo storage user = userInfoMap[_msgSender()];
         UserPoolInfo storage userPool = userPoolInfoMap[_msgSender()][pid_];
@@ -232,7 +229,7 @@ contract Staking is Ownable {
         userPool.rewardDebt = userPool.amount.mul(pool.accRewardPerShare).div(UNIT_PER_SHARE);
     }
 
-    function withdraw0(uint256 pid_, uint256 amount_) external {
+    function withdraw0(uint256 pid_, uint256 amount_) external noReentry {
         PoolInfo storage pool = poolInfoArray[pid_];
         UserInfo storage user = userInfoMap[_msgSender()];
         UserPoolInfo storage userPool = userPoolInfoMap[_msgSender()][pid_];
@@ -261,7 +258,7 @@ contract Staking is Ownable {
         userPool.rewardDebt = userPool.amount.mul(pool.accRewardPerShare).div(UNIT_PER_SHARE);
     }
 
-    function convert(address who_) public onlyEOA {
+    function _convert(address who_) private {
         UserInfo storage user = userInfoMap[who_];
 
         uint256 userRewardAmount = user.rewardAmount;
@@ -308,6 +305,10 @@ contract Staking is Ownable {
         }
     }
 
+    function convert(address who_) external onlyEOA noReentry {
+        _convert(who_);
+    }
+
     function getPendingAssetAmount(address who_, uint256 assetIndex_) external view returns(uint256) {
         UserInfo storage user = userInfoMap[who_];
 
@@ -332,7 +333,7 @@ contract Staking is Ownable {
             userRewardAmount = userRewardAmount.add(pending);
         }
 
-        // Now convert reward to commodities.
+        // Now estimate commodities from reward.
 
         uint256 addedAmount = userRewardAmount.mul(
             assetInfoArray[assetIndex_].rate).mul(
@@ -341,14 +342,14 @@ contract Staking is Ownable {
         return userAssetInfoMap[who_][assetIndex_].rewardAmount.add(addedAmount);
     }
 
-    function claim(uint256[] calldata amountArray_) external {
+    function claim(uint256[] calldata amountArray_) external onlyEOA noReentry {
         require(amountArray_.length == assetInfoArray.length, "Size not equal");
 
         UserInfo storage user = userInfoMap[_msgSender()];
         require(now >= user.lastClaimTime + getClaimDuration(_msgSender()), "Not ready");
 
         // Convert before claiming.
-        convert(_msgSender());
+        _convert(_msgSender());
 
         uint256 sum = 0;
         for (uint256 i = 0; i < amountArray_.length; ++i) {
