@@ -26,6 +26,12 @@ contract Treasury is Ownable {
         registry = registry_;
     }
 
+    modifier onlyEOA() {
+        // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
+        require(msg.sender == tx.origin, "Must use EOA");
+        _;
+    }
+
     function setDev(address dev_) external onlyOwner {
       dev = dev_;
     }
@@ -43,7 +49,7 @@ contract Treasury is Ownable {
     // If the problem still exists, we will add oracle and upgrade the code, but
     // at this point we don't want to overkill.
     //
-    function process(uint256 amount_) external {
+    function process(uint256 amount_) external onlyEOA {
         uint256 balance = IERC20(registry.stableToken()).balanceOf(address(this));
         require(amount_ <= balance, "more than balance");
         require(dev != address(0), "Dev is 0x0");

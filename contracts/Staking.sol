@@ -67,6 +67,12 @@ contract Staking is Ownable {
         registry = registry_;
     }
 
+    modifier onlyEOA() {
+        // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
+        require(msg.sender == tx.origin, "Must use EOA");
+        _;
+    }
+
     function poolInfoArrayLength() external view returns (uint256) {
         return poolInfoArray.length;
     }
@@ -255,7 +261,7 @@ contract Staking is Ownable {
         userPool.rewardDebt = userPool.amount.mul(pool.accRewardPerShare).div(UNIT_PER_SHARE);
     }
 
-    function convert(address who_) public {
+    function convert(address who_) public onlyEOA {
         UserInfo storage user = userInfoMap[who_];
 
         uint256 userRewardAmount = user.rewardAmount;
