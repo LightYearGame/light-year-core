@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 
+import "@openzeppelin/contracts/math/SafeMath.sol";
+
 import "../interface/IMiningConfig.sol";
 import "../interface/IRegistry.sol";
 import "../interface/IUpgradeable.sol";
 
 contract MiningConfig is IMiningConfig {
+    using SafeMath for uint256;
 
     IRegistry public registry;
 
@@ -21,8 +24,8 @@ contract MiningConfig is IMiningConfig {
         address who_,
         uint256 assetIndex_
     ) external override view returns (uint256) {
-        uint256 baseMultiplier = 100 + base().levelMap(who_, 0) * 3;
-        uint256 assetMultiplier = 100 + base().levelMap(who_, assetIndex_ + 1) * 3;
-        return baseMultiplier * assetMultiplier * 1e12;
+        uint256 baseMultiplier = base().levelMap(who_, 0).mul(3).add(100);
+        uint256 assetMultiplier = base().levelMap(who_, assetIndex_.add(1)).mul(3).add(100);
+        return baseMultiplier.mul(assetMultiplier).mul(1e12);
     }
 }

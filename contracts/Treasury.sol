@@ -60,7 +60,7 @@ contract Treasury is Ownable, NoReentry, OnlyEOA {
         address[] memory path = new address[](2);
         path[0] = address(registry.stableToken());
         path[1] = address(registry.tokenLightCoin());
-        uint256 deadline = now + (1 hours);
+        uint256 deadline = now.add(1 hours);
 
         IERC20(registry.stableToken()).approve(registry.uniswapV2Router(), 0);
         IERC20(registry.stableToken()).approve(registry.uniswapV2Router(), amount_);

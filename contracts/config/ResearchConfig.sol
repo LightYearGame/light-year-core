@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
+import "@openzeppelin/contracts/math/SafeMath.sol";
+
 import "../interface/IRegistry.sol";
 import "../interface/IUpgradeableConfig.sol";
 
-
 contract ResearchConfig is IUpgradeableConfig {
+    using SafeMath for uint256;
 
     // 0 - Research
     // 1 - Laser Beam
@@ -34,11 +36,11 @@ contract ResearchConfig is IUpgradeableConfig {
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
         if (itemIndex_ == 0) {
-            result[0] = (level_ + 1) * 200 * 1e18;
-            result[1] = (level_ + 1) * 200 * 1e18;
+            result[0] = (level_.add(1)).mul(200 * 1e18);
+            result[1] = (level_.add(1)).mul(200 * 1e18);
         } else {
-            result[0] = (level_ + 1) * 150 * 1e18;
-            result[1] = (level_ + 1) * 150 * 1e18;
+            result[0] = (level_.add(1)).mul(150 * 1e18);
+            result[1] = (level_.add(1)).mul(150 * 1e18);
         }
         return result;
     }

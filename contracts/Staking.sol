@@ -162,7 +162,7 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         address[] memory path = new address[](2);
         path[0] = address(fromToken_);
         path[1] = address(stableToken());
-        uint256 deadline = now + (1 hours);
+        uint256 deadline = now.add(1 hours);
 
         IERC20(fromToken_).approve(registry.uniswapV2Router(), 0);
         IERC20(fromToken_).approve(registry.uniswapV2Router(), fromAmount_);
@@ -363,7 +363,7 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         require(amountArray_.length == assetInfoArray.length, "Size not equal");
 
         UserInfo storage user = userInfoMap[_msgSender()];
-        require(now >= user.lastClaimTime + getClaimDuration(_msgSender()), "Not ready");
+        require(now >= user.lastClaimTime.add(getClaimDuration(_msgSender())), "Not ready");
 
         // Convert before claiming.
         _convert(_msgSender());
@@ -384,6 +384,6 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
 
     function userClaimStartTime() external view returns (uint256){
         UserInfo storage user = userInfoMap[_msgSender()];
-        return user.lastClaimTime + getClaimDuration(_msgSender());
+        return user.lastClaimTime.add(getClaimDuration(_msgSender()));
     }
 }

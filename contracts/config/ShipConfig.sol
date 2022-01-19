@@ -87,6 +87,7 @@ contract ShipConfig is IShipConfig, Randomness {
             array[0] = 100000;
             array[1] = 100000;
         }
+
         array[0] = array[0] * 1e18;
         array[1] = array[1] * 1e18;
         return array;
