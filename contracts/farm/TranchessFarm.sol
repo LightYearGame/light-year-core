@@ -22,6 +22,8 @@ contract TranchessFarm is IFarm {
     ITranchessStakingV2 public tranchessStaking;
     IERC20 public chess;
 
+    // tranchessStaking_
+    // https://bscscan.com/address/0x42867df3c1ce62613aae3f4238cbcf3d7630880b#code
     constructor (address staking_, ITranchessStakingV2 tranchessStaking_, IERC20 chess_) public {
         staking = staking_;
         tranchessStaking = tranchessStaking_;

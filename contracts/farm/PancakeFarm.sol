@@ -22,6 +22,8 @@ contract PancakeFarm is IFarm {
     IMasterChef public chef;
     IERC20 public cake;
 
+    // chef_
+    // https://bscscan.com/address/0x73feaa1ee314f8c655e354234017be2193c9e24e#code
     constructor (address staking_, IMasterChef chef_, IERC20 cake_) public {
         staking = staking_;
         chef = chef_;
