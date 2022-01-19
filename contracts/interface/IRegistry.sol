@@ -20,6 +20,7 @@ interface IRegistry {
     function burning() external view returns (address);
     function uniswapV2Router() external view returns (address);
     function stableToken() external view returns (address);
+    function treasury() external view returns (address);
 
     // fleets config and ships config
     function shipConfig() external view returns (address);

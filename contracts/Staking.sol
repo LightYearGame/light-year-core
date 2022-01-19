@@ -67,6 +67,12 @@ contract Staking is Ownable {
         registry = registry_;
     }
 
+    modifier onlyEOA() {
+        // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
+        require(msg.sender == tx.origin, "Must use EOA");
+        _;
+    }
+
     function poolInfoArrayLength() external view returns (uint256) {
         return poolInfoArray.length;
     }
@@ -129,18 +135,28 @@ contract Staking is Ownable {
         return farm.pendingReward(farmPid);
     }
 
+    // ***
+    // We will trigger the "convert(address who_)" function for the big
+    // stakers with a script as frequently as possible (say every hour)
+    // so that the fromAmount_ is always small enough, to prevent sandwich attacks 
+    // from happening.
+    //
+    // If the problem still exists, we will add oracle and upgrade the code, but 
+    // at this point we don't want to overkill.
+    //
     function _swapIntoStableToken(address fromToken_, uint256 fromAmount_) private returns(uint256) {
         address[] memory path = new address[](2);
         path[0] = address(fromToken_);
         path[1] = address(stableToken());
         uint256 deadline = now + (1 hours);
 
+        IERC20(fromToken_).approve(registry.uniswapV2Router(), 0);
         IERC20(fromToken_).approve(registry.uniswapV2Router(), fromAmount_);
         uint256[] memory amounts = IUniswapV2Router02(registry.uniswapV2Router()).swapExactTokensForTokens(
             fromAmount_,
-            0,
+            0,  // *
             path,
-            address(this),  // TODO: stores stable token in a contract and buy back and burn.
+            registry.treasury(),
             deadline);
         return amounts[1];
     }
@@ -197,6 +213,7 @@ contract Staking is Ownable {
         uint256 balanceBefore = IERC20(pool.rewardToken).balanceOf(address(this));
 
         IERC20(pool.token).safeTransferFrom(_msgSender(), address(this), amount_);
+        IERC20(pool.token).approve(address(pool.farm), 0);
         IERC20(pool.token).approve(address(pool.farm), amount_);
         pool.farm.deposit(pool.token, pool.farmPid, amount_);
 
@@ -244,7 +261,7 @@ contract Staking is Ownable {
         userPool.rewardDebt = userPool.amount.mul(pool.accRewardPerShare).div(UNIT_PER_SHARE);
     }
 
-    function convert(address who_) public {
+    function convert(address who_) public onlyEOA {
         UserInfo storage user = userInfoMap[who_];
 
         uint256 userRewardAmount = user.rewardAmount;
@@ -263,6 +280,7 @@ contract Staking is Ownable {
 
             uint256 balanceBefore = IERC20(pool.rewardToken).balanceOf(address(this));
 
+            // Claim rewards.
             pool.farm.claim(pool.farmPid);
 
             uint256 balanceAfter = IERC20(pool.rewardToken).balanceOf(address(this));

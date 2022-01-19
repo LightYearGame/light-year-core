@@ -24,6 +24,7 @@ contract Registry is Ownable, IRegistry {
     address public override burning;
     address public override uniswapV2Router;
     address public override stableToken;  // WBNB is the best choice.
+    address public override treasury;
 
     // fleets config and ships config
     address public override shipConfig;
@@ -69,6 +70,7 @@ contract Registry is Ownable, IRegistry {
     function setBurning(address addr_) external onlyOwner {burning = addr_;}
     function setUniswapV2Router(address addr_) external onlyOwner {uniswapV2Router = addr_;}
     function setStableToken(address addr_) external onlyOwner {stableToken = addr_;}
+    function setTreasury(address addr_) external onlyOwner {treasury = addr_;}
 
     // fleets config and ships config
     function setShipConfig(address addr_) external onlyOwner {shipConfig = addr_;}
