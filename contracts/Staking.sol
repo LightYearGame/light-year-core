@@ -101,12 +101,28 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         return who_ == registry.ship() || who_ == registry.base() || who_ == registry.research();
     }
 
+    function _checkPoolDuplication(IFarm farm_, uint256 farmPid_) private view {
+        for (uint256 i = 0; i < poolInfoArray.length; ++i) {
+            require(address(poolInfoArray[i].farm) != address(farm_) ||
+                    poolInfoArray[i].farmPid != farmPid_,
+                    "adding duplicate pool");
+        }
+    }
+
+    function _checkAssetDuplication(address token_) private view {
+        for (uint256 i = 0; i < assetInfoArray.length; ++i) {
+            require(assetInfoArray[i].token != token_,
+                    "adding duplicate asset");
+        }
+    }
+
     function addPool(
         IFarm farm_,
         uint256 farmPid_,
         address token_,
         address rewardToken_
     ) public onlyOwner {
+        _checkPoolDuplication(farm_, farmPid_);
         poolInfoArray.push(PoolInfo({
             farm: farm_,
             farmPid: farmPid_,
@@ -122,6 +138,7 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         address token_,
         uint256 rate_
     ) public onlyOwner {
+        _checkAssetDuplication(token_);
         assetInfoArray.push(AssetInfo({
             token: token_,
             rate: rate_
