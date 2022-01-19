@@ -10,8 +10,9 @@ import "../interface/IHeroConfig.sol";
 import "../interface/ILightCoin.sol";
 
 import "../common/PreMintable.sol";
+import "../common/OnlyEOA.sol";
 
-contract Hero is ERC721, IHero, PreMintable {
+contract Hero is ERC721, IHero, PreMintable, OnlyEOA {
 
     string constant public TOKEN_NAME = "LightYearHero";
     string constant public TOKEN_SYMBOL = "LYH";
@@ -61,7 +62,7 @@ contract Hero is ERC721, IHero, PreMintable {
         }
     }
 
-    function multipleDrawHero(uint256 amount_, bool advance_) external {
+    function multipleDrawHero(uint256 amount_, bool advance_) external onlyEOA {
 
         //base price
         uint256 basePrice = heroConfig().getHeroPrice(advance_);
@@ -129,7 +130,7 @@ contract Hero is ERC721, IHero, PreMintable {
         emit UpgradeHero(_msgSender(), heroFromTokenId_, heroToTokenId_, heroTo.level);
     }
 
-    function convertHero(uint256 heroTokenId_) external override {
+    function convertHero(uint256 heroTokenId_) external override onlyEOA {
         Info storage info = _heroInfoMap[heroTokenId_];
         require(info.level >= 4);
         info.level -= 3;

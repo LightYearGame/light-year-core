@@ -2,10 +2,11 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
-import "./../interface/IShipConfig.sol";
-import "./../interface/IRegistry.sol";
+import "../interface/IShipConfig.sol";
+import "../interface/IRegistry.sol";
+import "../common/Randomness.sol";
 
-contract ShipConfig is IShipConfig {
+contract ShipConfig is IShipConfig, Randomness {
 
     address public registryAddress;
 
@@ -92,20 +93,6 @@ contract ShipConfig is IShipConfig {
     }
 
     function randomShipQuality(uint256 seed_) public view override returns (uint8) {
-        return uint8(_random(seed_, 100) + 1);
-    }
-
-    /**
-     * random
-     */
-    function _random(uint256 seed_, uint256 randomSize_) private view returns (uint256){
-        uint256 nonce = seed_;
-        uint256 difficulty = block.difficulty;
-        uint256 gaslimit = block.gaslimit;
-        uint256 number = block.number;
-        uint256 timestamp = block.timestamp;
-        uint256 gasprice = tx.gasprice;
-        uint256 random = uint256(keccak256(abi.encodePacked(nonce, difficulty, gaslimit, number, timestamp, gasprice))) % randomSize_;
-        return random;
+        return uint8(getRandomNumber(seed_) % 100 + 1);
     }
 }

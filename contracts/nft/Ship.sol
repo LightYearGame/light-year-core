@@ -10,8 +10,9 @@ import "../interface/IShipConfig.sol";
 import "../interface/ICommodityERC20.sol";
 
 import "../common/PreMintable.sol";
+import "../common/OnlyEOA.sol";
 
-contract Ship is ERC721, IShip, PreMintable {
+contract Ship is ERC721, IShip, PreMintable, OnlyEOA {
 
     string constant public TOKEN_NAME = "LightYearShip";
     string constant public TOKEN_SYMBOL = "LYS";
@@ -56,12 +57,12 @@ contract Ship is ERC721, IShip, PreMintable {
         }
     }
 
-    function buildShip(uint8 shipType_) public {
+    function buildShip(uint8 shipType_) external override onlyEOA {
         address[] memory tokenArray = shipConfig().getBuildTokenArray(shipType_);
         uint256[] memory costs = shipConfig().getBuildShipCost(shipType_);
         require(tokenArray.length == costs.length, "buildShip: require same array length.");
 
-        for (uint i = 0; i < tokenArray.length; i++) {
+        for (uint256 i = 0; i < tokenArray.length; i++) {
             ICommodityERC20(tokenArray[i]).transferFrom(_msgSender(), address(this), costs[i]);
             ICommodityERC20(tokenArray[i]).burn(costs[i]);
         }
@@ -75,8 +76,7 @@ contract Ship is ERC721, IShip, PreMintable {
      * Mint ship
      */
     function _mintShip(address addr_, uint8 shipType_) private {
-
-        //mint nft
+        // Mint nft
         uint256 tokenId = nextTokenId;
         ++nextTokenId;
 

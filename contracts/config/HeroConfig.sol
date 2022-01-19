@@ -2,10 +2,11 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
-import "./../interface/IHeroConfig.sol";
-import "./../interface/IRegistry.sol";
+import "../interface/IHeroConfig.sol";
+import "../interface/IRegistry.sol";
+import "../common/Randomness.sol";
 
-contract HeroConfig is IHeroConfig {
+contract HeroConfig is IHeroConfig, Randomness {
 
     address public registryAddress;
 
@@ -26,9 +27,8 @@ contract HeroConfig is IHeroConfig {
     }
 
     function randomHeroType(bool advance_, uint256 seed_) external view override returns (uint8) {
-        uint256 random = _random(seed_, 1e18);
-        uint8 r1 = uint8(random % 100);
-        uint8 r2 = uint8(_random(r1, 12));
+        uint8 r1 = uint8(getRandomNumber(seed_) % 100);
+        uint8 r2 = uint8(getRandomNumber(r1) % 12);
 
         if (!advance_) {
             if (r1 < 90) {
@@ -50,7 +50,7 @@ contract HeroConfig is IHeroConfig {
     }
 
     function randomHeroTypeRarier(uint8 heroType_, uint256 seed_) external view override returns (uint8) {
-        uint8 r = uint8(_random(seed_, 12));
+        uint8 r = uint8(getRandomNumber(seed_) % 12);
         if (heroType_ < 12) {
           return r + uint8(12);
         } else if (heroType_ < 24) {
@@ -63,20 +63,6 @@ contract HeroConfig is IHeroConfig {
     }
 
     function randomHeroQuality(uint256 seed_) external view override returns (uint8) {
-        return uint8(_random(seed_, 100) + 1);
-    }
-
-    /**
-     * random
-     */
-    function _random(uint256 seed_, uint256 randomSize_) private view returns (uint256){
-        uint256 nonce = seed_;
-        uint256 difficulty = block.difficulty;
-        uint256 gaslimit = block.gaslimit;
-        uint256 number = block.number;
-        uint256 timestamp = block.timestamp;
-        uint256 gasprice = tx.gasprice;
-        uint256 random = uint256(keccak256(abi.encodePacked(nonce, difficulty, gaslimit, number, timestamp, gasprice))) % randomSize_;
-        return random;
+        return uint8(getRandomNumber(seed_) % 100 + 1);
     }
 }

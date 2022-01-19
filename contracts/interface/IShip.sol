@@ -11,5 +11,6 @@ interface IShip {
     }
 
     function shipInfo(uint256 shipId_) external view returns(Info memory);
+    function buildShip(uint8 shipType_) external;
     function upgradeShip(uint256 shipFromTokenId_, uint256 shipToTokenId_) external;
 }
