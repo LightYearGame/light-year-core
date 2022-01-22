@@ -60,6 +60,6 @@ contract Randomness {
     }
 
     function getRandomNumber(uint256 seed_) public view returns (uint256) {
-        uint256(keccak256(abi.encodePacked(seed_, seed0(), seed1(), seed2(), seed3(), seed4(), seed5())));
+        return uint256(keccak256(abi.encodePacked(seed_, seed0(), seed1(), seed2(), seed3(), seed4(), seed5())));
     }
 }
