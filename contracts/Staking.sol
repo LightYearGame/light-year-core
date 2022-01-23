@@ -215,7 +215,7 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
             amount_.mul(UNIT_PER_SHARE).div(pool.amount));
     }
 
-    function deposit0(uint256 pid_, uint256 amount_) external noReentry {
+    function deposit0(uint256 pid_, uint256 amount_) external onlyEOA noReentry {
         PoolInfo storage pool = poolInfoArray[pid_];
         UserInfo storage user = userInfoMap[_msgSender()];
         UserPoolInfo storage userPool = userPoolInfoMap[_msgSender()][pid_];
