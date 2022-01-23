@@ -12,5 +12,5 @@ contracts/mock
 #Files
 package-lock.json
 *.json
-
 *.swp
+contracts/interface/IMockToken.sol
