@@ -39,7 +39,8 @@ contract TranchessFarm is IFarm {
 
         IERC20(token_).safeTransferFrom(staking, address(this), amount_);
 
-        IERC20(token_).approve(address(tranchessStaking), amount_);
+        IERC20(token_).safeApprove(address(tranchessStaking), 0);
+        IERC20(token_).safeApprove(address(tranchessStaking), amount_);
         tranchessStaking.deposit(pid_, amount_);
 
         uint256 chessBalance = chess.balanceOf(address(this));

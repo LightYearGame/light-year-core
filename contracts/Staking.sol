@@ -164,8 +164,8 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         path[1] = address(stableToken());
         uint256 deadline = now.add(1 hours);
 
-        IERC20(fromToken_).approve(registry.uniswapV2Router(), 0);
-        IERC20(fromToken_).approve(registry.uniswapV2Router(), fromAmount_);
+        IERC20(fromToken_).safeApprove(registry.uniswapV2Router(), 0);
+        IERC20(fromToken_).safeApprove(registry.uniswapV2Router(), fromAmount_);
         uint256[] memory amounts = IUniswapV2Router02(registry.uniswapV2Router()).swapExactTokensForTokens(
             fromAmount_,
             0,  // *
@@ -227,8 +227,8 @@ contract Staking is Ownable, NoReentry, OnlyEOA {
         uint256 balanceBefore = IERC20(pool.rewardToken).balanceOf(address(this));
 
         IERC20(pool.token).safeTransferFrom(_msgSender(), address(this), amount_);
-        IERC20(pool.token).approve(address(pool.farm), 0);
-        IERC20(pool.token).approve(address(pool.farm), amount_);
+        IERC20(pool.token).safeApprove(address(pool.farm), 0);
+        IERC20(pool.token).safeApprove(address(pool.farm), amount_);
         pool.farm.deposit(pool.token, pool.farmPid, amount_);
 
         uint256 balanceAfter = IERC20(pool.rewardToken).balanceOf(address(this));

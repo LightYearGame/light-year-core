@@ -39,7 +39,8 @@ contract PancakeFarm is IFarm {
 
         IERC20(token_).safeTransferFrom(staking, address(this), amount_);
 
-        IERC20(token_).approve(address(chef), amount_);
+        IERC20(token_).safeApprove(address(chef), 0);
+        IERC20(token_).safeApprove(address(chef), amount_);
         chef.deposit(pid_, amount_);
 
         uint256 cakeBalance = cake.balanceOf(address(this));
