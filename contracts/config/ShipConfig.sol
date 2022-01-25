@@ -46,13 +46,13 @@ contract ShipConfig is IShipConfig, Randomness {
             array[1] = 1000;
         } else if (shipType_ == 6) {
             array[0] = 100;
-            array[1] = 100;
+            array[1] = 0;
         } else if (shipType_ == 7) {
             array[0] = 6000;
             array[1] = 6000;
         } else if (shipType_ == 8) {
             array[0] = 400;
-            array[1] = 400;
+            array[1] = 0;
         } else if (shipType_ == 9) {
             array[0] = 10000;
             array[1] = 10000;
@@ -64,7 +64,7 @@ contract ShipConfig is IShipConfig, Randomness {
             array[1] = 800;
         } else if (shipType_ == 12) {
             array[0] = 1000;
-            array[1] = 1000;
+            array[1] = 0;
         } else if (shipType_ == 13) {
             array[0] = 12000;
             array[1] = 12000;
