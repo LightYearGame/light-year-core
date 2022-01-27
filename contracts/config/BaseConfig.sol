@@ -46,6 +46,11 @@ contract BaseConfig is IUpgradeableConfig {
             result[0] = (2 ** level_).mul(150).mul(1e18);
             result[1] = (2 ** level_).mul(150).mul(1e18);
         }
+
+        if (level_ < 5) {
+            result[1] = 0;
+        }
+
         return result;
     }
 }

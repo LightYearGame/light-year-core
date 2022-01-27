@@ -23,7 +23,7 @@ contract ResearchConfig is IUpgradeableConfig {
     }
 
     function maximumLevel(uint256 itemIndex_) external override view returns (uint256) {
-        return 100;
+        return 5;
     }
 
     function getTokenArray(uint256 itemIndex_, uint256 level_) external override view returns (address[] memory) {
@@ -36,12 +36,17 @@ contract ResearchConfig is IUpgradeableConfig {
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](2);
         if (itemIndex_ == 0) {
-            result[0] = (level_.add(1)).mul(200 * 1e18);
-            result[1] = (level_.add(1)).mul(200 * 1e18);
+            result[0] = (2 ** level_).mul(100).mul(1e18);
+            result[1] = (2 ** level_).mul(100).mul(1e18);
         } else {
-            result[0] = (level_.add(1)).mul(150 * 1e18);
-            result[1] = (level_.add(1)).mul(150 * 1e18);
+            result[0] = (2 ** level_).mul(500).mul(1e18);
+            result[1] = (2 ** level_).mul(500).mul(1e18);
         }
+
+        if (level_ < 2) {
+            result[1] = 0;
+        }
+
         return result;
     }
 }
