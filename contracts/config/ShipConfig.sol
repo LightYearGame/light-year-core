@@ -30,66 +30,59 @@ contract ShipConfig is IShipConfig, Randomness {
         require(shipType_ >= 1 && shipType_ <= 19, "require correct ship type.");
         uint256[] memory array = new uint256[](2);
         if (shipType_ == 1) {
-            array[0] = 100;
-            array[1] = 100;
+            require(false, "Not implemented");
         } else if (shipType_ == 2) {
-            array[0] = 4000;
-            array[1] = 4000;
+            array[0] = 4000e18;
+            array[1] = 4000e18;
         } else if (shipType_ == 3) {
-            array[0] = 5000;
-            array[1] = 5000;
+            array[0] = 5000e18;
+            array[1] = 5000e18;
         } else if (shipType_ == 4) {
-            array[0] = 100;
-            array[1] = 100;
+            require(false, "Not implemented");
         } else if (shipType_ == 5) {
-            array[0] = 1000;
-            array[1] = 1000;
+            require(false, "Not implemented");
         } else if (shipType_ == 6) {
-            array[0] = 100;
+            array[0] = 100e18;
             array[1] = 0;
         } else if (shipType_ == 7) {
-            array[0] = 6000;
-            array[1] = 6000;
+            array[0] = 6000e18;
+            array[1] = 6000e18;
         } else if (shipType_ == 8) {
-            array[0] = 400;
+            array[0] = 400e18;
             array[1] = 0;
         } else if (shipType_ == 9) {
-            array[0] = 10000;
-            array[1] = 10000;
+            array[0] = 10000e18;
+            array[1] = 10000e18;
         } else if (shipType_ == 10) {
-            array[0] = 11000;
-            array[1] = 11000;
+            array[0] = 11000e18;
+            array[1] = 11000e18;
         } else if (shipType_ == 11) {
-            array[0] = 800;
-            array[1] = 800;
+            require(false, "Not implemented");
         } else if (shipType_ == 12) {
-            array[0] = 1000;
+            array[0] = 1000e18;
             array[1] = 0;
         } else if (shipType_ == 13) {
-            array[0] = 12000;
-            array[1] = 12000;
+            array[0] = 12000e18;
+            array[1] = 12000e18;
         } else if (shipType_ == 14) {
-            array[0] = 3000;
-            array[1] = 3000;
+            require(false, "Not implemented");
         } else if (shipType_ == 15) {
-            array[0] = 2000;
-            array[1] = 2000;
+            array[0] = 2000e18;
+            array[1] = 2000e18;
         } else if (shipType_ == 16) {
-            array[0] = 20000;
-            array[1] = 20000;
+            array[0] = 20000e18;
+            array[1] = 20000e18;
         } else if (shipType_ == 17) {
-            array[0] = 24000;
-            array[1] = 24000;
+            array[0] = 24000e18;
+            array[1] = 24000e18;
         } else if (shipType_ == 18) {
-            array[0] = 30000;
-            array[1] = 30000;
+            array[0] = 30000e18;
+            array[1] = 30000e18;
         } else if (shipType_ == 19) {
-            array[0] = 100000;
-            array[1] = 100000;
+            array[0] = 100000e18;
+            array[1] = 100000e18;
         }
 
-        array[0] = array[0] * 1e18;
-        array[1] = array[1] * 1e18;
         return array;
     }
 
