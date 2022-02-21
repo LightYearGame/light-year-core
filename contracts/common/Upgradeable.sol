@@ -25,21 +25,21 @@ abstract contract Upgradeable is IUpgradeable, Context {
     function _config() internal virtual view returns (IUpgradeableConfig);
 
     function upgrade(uint256 itemIndex_) external override {
+        require(itemIndex_ < _config().maximumIndex(), "Wrong index");
+
         uint256 level = levelMap[_msgSender()][itemIndex_];
-        require(level < _config().maximumLevel(itemIndex_));
+        require(level < _config().maximumLevel(itemIndex_), "Wrong level");
 
         address[] memory tokenArray = _config().getTokenArray(itemIndex_, level);
         uint256[] memory costArray = _config().getCostArray(itemIndex_, level);
 
         for (uint256 i = 0; i < tokenArray.length; ++i) {
-            ICommodityERC20(tokenArray[i]).transferFrom(_msgSender(), address(this), costArray[i]);
-            ICommodityERC20(tokenArray[i]).burn(costArray[i]);
+            if (costArray[i] > 0) {
+                ICommodityERC20(tokenArray[i]).transferFrom(_msgSender(), address(this), costArray[i]);
+                ICommodityERC20(tokenArray[i]).burn(costArray[i]);
+            }
         }
 
         levelMap[_msgSender()][itemIndex_] = level + 1;
-    }
-
-    function size() public override view returns (uint256){
-        return 0;
     }
 }

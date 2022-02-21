@@ -24,8 +24,10 @@ contract MiningConfig is IMiningConfig {
         address who_,
         uint256 assetIndex_
     ) external override view returns (uint256) {
-        uint256 baseMultiplier = base().levelMap(who_, 0).mul(3).add(100);
-        uint256 assetMultiplier = base().levelMap(who_, assetIndex_.add(1)).mul(3).add(100);
-        return baseMultiplier.mul(assetMultiplier).mul(1e5);
+        uint256 baseLevel = base().levelMap(who_, 0);
+        uint256 baseMultiplier = 100 * (11 ** baseLevel) / (10 ** baseLevel);
+        uint256 assetLevel = base().levelMap(who_, assetIndex_.add(1));
+        uint256 assetMultiplier = 100 * (11 ** assetLevel) / (10 ** assetLevel);
+        return baseMultiplier.mul(assetMultiplier).mul(8e6);
     }
 }

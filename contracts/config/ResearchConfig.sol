@@ -22,29 +22,30 @@ contract ResearchConfig is IUpgradeableConfig {
         registry = registry_;
     }
 
-    function maximumLevel(uint256 itemIndex_) external override view returns (uint256) {
-        return 5;
+    function maximumIndex() public override view returns (uint256) {
+        return 6;
+    }
+
+    function maximumLevel(uint256 itemIndex_) public override view returns (uint256) {
+        return 6;
     }
 
     function getTokenArray(uint256 itemIndex_, uint256 level_) external override view returns (address[] memory) {
-        address[] memory result = new address[](2);
+        address[] memory result = new address[](1);
         result[0] = registry.tokenSilicate();
-        result[1] = registry.tokenEnergy();
         return result;
     }
 
     function getCostArray(uint256 itemIndex_, uint256 level_) external override view returns (uint256[] memory) {
-        uint256[] memory result = new uint256[](2);
-        if (itemIndex_ == 0) {
-            result[0] = (2 ** level_).mul(100).mul(1e18);
-            result[1] = (2 ** level_).mul(100).mul(1e18);
-        } else {
-            result[0] = (2 ** level_).mul(500).mul(1e18);
-            result[1] = (2 ** level_).mul(500).mul(1e18);
-        }
+        require(itemIndex_ < maximumIndex(), "Wrong index");
+        require(level_ < maximumLevel(itemIndex_), "Wrong level");
 
-        if (level_ < 2) {
-            result[1] = 0;
+        uint256[] memory result = new uint256[](1);
+
+        if (itemIndex_ == 0) {
+            result[0] = (4 ** level_).mul(200e18);
+        } else {
+            result[0] = (4 ** level_).mul(100e18);
         }
 
         return result;
