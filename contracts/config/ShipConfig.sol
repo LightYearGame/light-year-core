@@ -48,6 +48,15 @@ contract ShipConfig is IShipConfig, Randomness {
         return array;
     }
 
+    function getBuildShipCostByLevel(uint8 shipType_, uint8 level_) public pure override returns (uint256[] memory){
+        require(level_ >= 1, "invalid ship level.");
+        uint256[] memory array = getBuildShipCost(shipType_);
+        for (uint i = 0; i < array.length; i++) {
+            array[i] = array[i] * 2 ** (level_ - 1);
+        }
+        return array;
+    }
+
     function randomShipQuality(uint256 seed_) public view override returns (uint8) {
         return uint8(getRandomNumber(seed_) % 100 + 1);
     }
