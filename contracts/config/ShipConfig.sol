@@ -52,7 +52,7 @@ contract ShipConfig is IShipConfig, Randomness {
         require(level_ >= 1, "invalid ship level.");
         uint256[] memory array = getBuildShipCost(shipType_);
         for (uint i = 0; i < array.length; i++) {
-            array[i] = array[i] * 2 ** (level_ - 1);
+            array[i] = array[i] * (2 ** uint(level_ - 1));
         }
         return array;
     }
