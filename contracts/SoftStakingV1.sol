@@ -52,7 +52,7 @@ contract SoftStaking is Ownable {
 
     function update() public {
         if (timeMap[_msgSender()] > 0) {
-            unclaimedMap[_msgSender()] += (now - timeMap[_msgSender()]) * 57e9;
+            unclaimedMap[_msgSender()] += (now - timeMap[_msgSender()]) * 57e9 * balanceMap[_msgSender()] / 1e18;
             timeMap[_msgSender()] = now;
         }
     }
@@ -61,7 +61,7 @@ contract SoftStaking is Ownable {
         //update unclaimed amount
         update();
 
-        ICommodityERC20(registry.tokenIron()).mintByInternalContracts(_msgSender(), unclaimedMap[_msgSender()]);
+        ICommodityERC20(registry.tokenEnergy()()).mintByInternalContracts(_msgSender(), unclaimedMap[_msgSender()]);
         unclaimedMap[_msgSender()] = 0;
     }
 }
