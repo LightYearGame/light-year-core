@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interface/IRegistry.sol";
 import "./interface/ICommodityERC20.sol";
 
-contract SoftStaking is Ownable {
+contract SoftStakingV1 is Ownable {
 
     using SafeMath for uint256;
 
@@ -61,7 +61,11 @@ contract SoftStaking is Ownable {
         //update unclaimed amount
         update();
 
-        ICommodityERC20(registry.tokenEnergy()()).mintByInternalContracts(_msgSender(), unclaimedMap[_msgSender()]);
+        ICommodityERC20(registry.tokenEnergy()).mintByInternalContracts(_msgSender(), unclaimedMap[_msgSender()]);
         unclaimedMap[_msgSender()] = 0;
+    }
+
+    function expectedAmount() external view returns(uint256){
+        return unclaimedMap[_msgSender()] + (now - timeMap[_msgSender()]) * 57e9 * balanceMap[_msgSender()] / 1e18;
     }
 }
