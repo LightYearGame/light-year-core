@@ -16,9 +16,13 @@ contract SoftStakingV1 is Ownable {
 
     uint256 public delay = 24 hours;
 
-    mapping(address => uint256) public balanceMap;
-    mapping(address => uint256) public timeMap;
-    mapping(address => uint256) public unclaimedMap;
+    mapping(address => Info) public infoMap;
+
+    struct Info {
+        uint256 balance;
+        uint256 time;
+        uint256 unclaimed;
+    }
 
     constructor (IRegistry registry_) public {
         registry = registry_;
@@ -34,26 +38,26 @@ contract SoftStakingV1 is Ownable {
 
         IERC20(registry.tokenLightCoin()).transferFrom(
             _msgSender(), address(this), amount_);
-        balanceMap[_msgSender()] = balanceMap[_msgSender()].add(amount_);
-        timeMap[_msgSender()] = now;
+        infoMap[_msgSender()].balance = infoMap[_msgSender()].balance.add(amount_);
+        infoMap[_msgSender()].time = now;
     }
 
     function withdraw(uint256 amount_) external {
-        require(now > timeMap[_msgSender()] + delay, "Wait");
-        require(amount_ <= balanceMap[_msgSender()], "Not enough balance");
+        require(now > infoMap[_msgSender()].time + delay, "Wait");
+        require(amount_ <= infoMap[_msgSender()].balance, "Not enough balance");
 
         //update unclaimed amount
         update();
 
         IERC20(registry.tokenLightCoin()).transfer(
             _msgSender(), amount_);
-        balanceMap[_msgSender()] = balanceMap[_msgSender()].sub(amount_);
+        infoMap[_msgSender()].balance = infoMap[_msgSender()].balance.sub(amount_);
     }
 
     function update() public {
-        if (timeMap[_msgSender()] > 0) {
-            unclaimedMap[_msgSender()] += (now - timeMap[_msgSender()]) * 57e9 * balanceMap[_msgSender()] / 1e18;
-            timeMap[_msgSender()] = now;
+        if (infoMap[_msgSender()].time > 0) {
+            infoMap[_msgSender()].unclaimed += (now - infoMap[_msgSender()].time) * 57e9 * infoMap[_msgSender()].balance / 1e18;
+            infoMap[_msgSender()].time = now;
         }
     }
 
@@ -61,11 +65,11 @@ contract SoftStakingV1 is Ownable {
         //update unclaimed amount
         update();
 
-        ICommodityERC20(registry.tokenEnergy()).mintByInternalContracts(_msgSender(), unclaimedMap[_msgSender()]);
-        unclaimedMap[_msgSender()] = 0;
+        ICommodityERC20(registry.tokenEnergy()).mintByInternalContracts(_msgSender(), infoMap[_msgSender()].unclaimed);
+        infoMap[_msgSender()].unclaimed = 0;
     }
 
-    function expectedAmount() external view returns(uint256){
-        return unclaimedMap[_msgSender()] + (now - timeMap[_msgSender()]) * 57e9 * balanceMap[_msgSender()] / 1e18;
+    function expectedAmount() external view returns (uint256){
+        return infoMap[_msgSender()].unclaimed + (now - infoMap[_msgSender()].time) * 57e9 * infoMap[_msgSender()].balance / 1e18;
     }
 }
