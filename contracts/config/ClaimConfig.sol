@@ -7,7 +7,7 @@ import "../interface/IRegistry.sol";
 import "../interface/IUpgradeable.sol";
 
 interface ISoftStaking {
-    function balanceMap(address who_) external view returns(uint256);
+    function infoMap(address who_) external view returns(uint256, uint256, uint256);
 }
 
 contract ClaimConfig is IClaimConfig {
@@ -20,7 +20,7 @@ contract ClaimConfig is IClaimConfig {
     }
 
     function getStakingLevel(address who_) public view returns(uint256) {
-        uint256 balance = softStaking.balanceMap(who_);
+        (uint256 balance,,) = softStaking.balanceMap(who_);
         if (balance > 1024000e18) {
             return 11;
         } else if (balance >= 512000e18) {

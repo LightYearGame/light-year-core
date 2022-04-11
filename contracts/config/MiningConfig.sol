@@ -24,6 +24,10 @@ contract MiningConfig is IMiningConfig {
         address who_,
         uint256 assetIndex_
     ) external override view returns (uint256) {
+        if (msg.sender == registry.staking()) {
+            return 0;
+        }
+
         uint256 baseLevel = base().levelMap(who_, 0);
         uint256 baseMultiplier = 100 * (11 ** baseLevel) / (10 ** baseLevel);
         uint256 assetLevel = base().levelMap(who_, assetIndex_.add(1));
